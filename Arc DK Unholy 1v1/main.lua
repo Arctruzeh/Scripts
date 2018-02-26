@@ -1,91 +1,5 @@
 if not funcs then funcs = true
 
-  PartyList = {
-    "player",
-    "playerpet",
-  }
-
-  EnemyList = {
-    "arena1",
-    "arenapet1",
-  }
-
-  HardCCList = {
-    10308, --HoJ
-    20066, --repentance
-    44572, --Deep Freeze
-    30283, --Shadowfury
-    12826, --Polymorph
-    42950, --dragons breath
-    6215, --Fear
-    10890, --Psychic Scream
-    6358, --Seduction
-    47860, --death coil
-    17928, --howl of terror
-    18647, --banish
-    60210, --freezing arrow
-    14309, --freezing trap
-    18658, --hibernate
-    51209, --hungering cold
-  }
-
-  CCList = {
-    51514, --Hex
-    12826, --Sheep
-    28271, --Turtle
-    61721, --Rabbit
-    61305, --Black Cat
-    28272, --Pig
-    33786, --Cyclone
-    53308, --Entangline Roots
-    18658, --Hibernate
-    6215, --Fear
-    17928, --Howl of Terror
-    605, --Mind Control
-  }
-
-  SilenceList = {
-    15487, --Silence
-    47476, --Strangulate
-    55021, --Counter Spell
-    34490, --silencing shot
-    24259, --spell lock
-  }
-
-  RootList = {
-    64695, --Earthbind Root
-    63685, --enhance nova
-    42917, --frost nova
-    12494, --frost bite
-    33395, --pet nova
-    53313, --nature's grasp
-    53308, --entangling roots
-  }
-
-  SlowList = {
-    42842, --frostbolt max rank
-    116, --frostbolt r1
-    42931, --cone of cold
-    47610, --frostfire bolt
-    59638, --mirror images
-    7321, --chilled
-    31589, --slow
-    49236, --frost shock
-    3600, --earthbind
-    61291, --shadow flame
-    18118, --conflagrate aftermath daze
-    58181, --feral disease
-    3409 , --rogue crippling poison
-    45524, --chains of ice
-  }
-
-  DotList = {
-    47811, --Immolate
-    47813, --corruption
-    49233, --flame shock
-    48300, --devouring plague
-  }
-
   function UnitBuffID(unit, id)    
     return UnitBuff(unit, GetSpellInfo(id))
   end
@@ -109,13 +23,6 @@ if not funcs then funcs = true
       return 100 * UnitHealth(unit) / UnitHealthMax(unit)
     else
       return 200
-    end
-  end
-
-  function PlayerLowest()
-    if getHp("player") < getHp("party1")
-    and getHp("player") < getHp("party2") then
-      return true
     end
   end
 
@@ -145,19 +52,16 @@ if not funcs then funcs = true
   function _castSpell(spellid,tar)
     if UnitCastingInfo("player") == nil
     and UnitChannelInfo("player") == nil
-    and cdRemains(spellid) == 0
-    then
+    and cdRemains(spellid) == 0 then
       if tar ~= nil
-      and rangeCheck(spellid,tar) == nil
-      then
+      and rangeCheck(spellid,tar) == nil then
         return false
       elseif tar ~= nil
       and rangeCheck(spellid,tar) == true
-      then
+	  and _LoS(tar) then
         CastSpellByID(spellid, tar)
         return true
-      elseif tar == nil
-      then
+      elseif tar == nil then
         CastSpellByID(spellid)
         return true
       else
@@ -185,34 +89,26 @@ if not funcs then funcs = true
 --Lichborne
     local spell, _, _, _, _, endTime = UnitCastingInfo("target")
     local spd = UnitCastingInfo("target")
-    if spell 
-    then
+    if spell then
       local finish = endTime/1000 - GetTime()
-      if 
-      finish < 0.3 
-      and 
-      not IsUsableSpell("Anti-Magic Shell") then
-        if 
-        spd == ("Polymorph") 
-        or 
-        spd == ("Fear")  
-        then
+      if finish < 0.3 
+      and not IsUsableSpell("Anti-Magic Shell") then
+        if spd == ("Polymorph") 
+        or spd == ("Fear") then
           _castSpell(49039)
         end
       end
     end
+	
 --Summon Pet
-    if
-    UnitExists("playerpet") ~= 1
-    and
-    cdRemains(46584) == 0 then
+    if UnitExists("playerpet") ~= 1 then
       _castSpell(46584)
     end
+	
 --Horn of Winter
     local Horn, _, _, _, _, _, hwexpire = UnitBuffID("player", 57623)
 
-    if Horn ~= nil
-    then
+    if Horn ~= nil then
       hwexpire =(hwexpire - GetTime())
       if hwexpire < 5 then
         _castSpell(57623)
@@ -220,14 +116,13 @@ if not funcs then funcs = true
     else
       _castSpell(57623)
     end
+	
 --Bone Shield
-    if 
-    UnitBuffID("player", 49222) == nil 
-    and cdRemains(49222) == 0
-    and ( GetRuneCooldown(5) == 0
-      or GetRuneCooldown(6) == 0 ) then
+    if UnitBuffID("player", 49222) == nil 
+    and ( GetRuneCooldown(5) == 0 or GetRuneCooldown(6) == 0 ) then
       _castSpell(49222)
     end
+	
 --Mind Freeze (Target)
     local spell, _, _, _, _, endTime = UnitCastingInfo("target")
     local spd = UnitCastingInfo("target")
@@ -241,16 +136,19 @@ if not funcs then funcs = true
         end
       end
     end
+	
 --Death and Decay
     if IsLeftAltKeyDown() 
     and not GetCurrentKeyBoardFocus() 
     and not UnitChannelInfo("player") 
     then
-      CastSpellByID(49938)
-      if SpellIsTargeting() 
-      then CameraOrSelectOrMoveStart() CameraOrSelectOrMoveStop() 
+      _castSpell(49938)
+      if SpellIsTargeting() then 
+	  CameraOrSelectOrMoveStart() 
+	  CameraOrSelectOrMoveStop() 
       end  
     end
+	
 --Eat Pet
     if UnitExists("playerpet") == 1
     and getHp("player") < 60 then
@@ -258,26 +156,28 @@ if not funcs then funcs = true
         _castSpell(48743)
       end
     end
+	
 --Empower Rune Wep Garg
     if UnitPower("player") >= 35
     and GetSpellCooldown(49206) == 0 then
       _castSpell(47568)
     end
+	
 --Strangulate on Garg
     if UnitDebuffID("target", 49206) 
-	and _LoS("target")
     and not UnitDebuff("target", "Psychic Scream") 
     and UnitBuffID("target", 48707) == nil --ams
     then
       _castSpell(47476, "target")
     end
+	
 --Summon Garg
     if UnitPower("player") >= 60 
-    and GetSpellCooldown(49206) == 0 
     and UnitBuffID("target", 45438) == nil --ice block
     then
       _castSpell(49206)
     end
+	
 --Empower Rune Weapon
     if GetRuneCooldown(1) == false 
     and GetRuneCooldown(2) == false 
@@ -287,14 +187,11 @@ if not funcs then funcs = true
     and GetRuneCooldown(6) == false then
       _castSpell(47568)
     end
+	
 --Blood Tap
     if UnitExists("target") == 1
     and UnitCanAttack("player","target") ~= nil
-    and cdRemains(45529) == 0
     and rangeCheck(49930,"target") == true
-    and UnitDebuffID("target", 51724) == nil --sap
-    and UnitDebuffID("target", 33786) == nil --cyclone
-    and UnitDebuffID("target", 12826) == nil --poly
     and UnitBuffID("target", 45438) == nil --ice block
     and UnitBuffID("target", 642) == nil --bubble
     and UnitBuffID("target", 19263) == nil --deterrance
@@ -306,34 +203,24 @@ if not funcs then funcs = true
     then
       _castSpell(45529)
     end
+	
 --Death Coil Dump
     if UnitExists("target") == 1
-	and _LoS("target")
     and UnitCanAttack("player","target") ~= nil
-    and cdRemains(49895) == 0
-    and rangeCheck(49895,"target") == true
     and UnitPower("player") >= 100 
-    and UnitDebuffID("target", 51724) == nil --sap
     and UnitBuffID("target", 48707) == nil --ams
     and UnitBuffID("target", 47585) == nil --dispersion
-    and UnitDebuffID("target", 33786) == nil --cyclone
-    and UnitDebuffID("target", 12826) == nil --poly
     and UnitBuffID("target", 45438) == nil --ice block
     and UnitBuffID("target", 642) == nil --bubble
     and UnitBuffID("target", 19263) == nil --deterrance
     and UnitBuffID("target", 31224) == nil --cloak of shadows
     then _castSpell(49895, "target")
     end
+	
 --Chains of Ice
     if UnitExists("target") == 1
-	and _LoS("target")
     and UnitCanAttack("player","target") ~= nil
-    and cdRemains(45524) == 0
-    and rangeCheck(45524,"target") == true
-    and UnitDebuffID("target", 51724) == nil --sap
     and UnitBuffID("target", 48707) == nil --ams
-    and UnitDebuffID("target", 33786) == nil --cyclone
-    and UnitDebuffID("target", 12826) == nil --poly
     and UnitBuffID("target", 45438) == nil --ice block
     and UnitBuffID("target", 642) == nil --bubble
     and UnitBuffID("target", 19263) == nil --deterrance
@@ -344,33 +231,23 @@ if not funcs then funcs = true
     then
       _castSpell(45524, "target")
     end
+	
 --Death Coil Range
     if UnitExists("target") == 1
-	and _LoS("target")
     and UnitCanAttack("player","target") ~= nil
-    and cdRemains(49895) == 0
-    and rangeCheck(49895,"target") == true
     and rangeCheck(49924,"target") ~= true --death strike
     and UnitPower("player") >= 40 
-    and UnitDebuffID("target", 51724) == nil --sap
     and UnitBuffID("target", 48707) == nil --ams
     and UnitBuffID("target", 47585) == nil --dispersion
-    and UnitDebuffID("target", 33786) == nil --cyclone
-    and UnitDebuffID("target", 12826) == nil --poly
     and UnitBuffID("target", 45438) == nil --ice block
     and UnitBuffID("target", 642) == nil --bubble
     and UnitBuffID("target", 19263) == nil --deterrance
     and UnitBuffID("target", 31224) == nil --cloak of shadows
     then _castSpell(49895, "target")
     end
+	
 --Plague Strike
     if UnitExists("target") == 1
-	and _LoS("target")
-    and cdRemains(49921) == 0
-    and rangeCheck(49921,"target") == true
-    and UnitDebuffID("target", 51724) == nil --sap
-    and UnitDebuffID("target", 33786) == nil --cyclone
-    and UnitDebuffID("target", 12826) == nil --poly
     and UnitBuffID("target", 45438) == nil --ice block
     and UnitBuffID("target", 642) == nil --bubble
     and UnitBuffID("target", 19263) == nil --deterrance
@@ -381,16 +258,11 @@ if not funcs then funcs = true
     then
       _castSpell(49921, "target")
     end
+	
 --Death Strike
     if UnitExists("target") == 1
-	and _LoS("target")
     and UnitCanAttack("player","target") ~= nil
     and getHp("player") < 90
-    and cdRemains(49924) == 0
-    and rangeCheck(49924,"target") == true
-    and UnitDebuffID("target", 51724) == nil --sap
-    and UnitDebuffID("target", 33786) == nil --cyclone
-    and UnitDebuffID("target", 12826) == nil --poly
     and UnitBuffID("target", 45438) == nil --ice block
     and UnitBuffID("target", 642) == nil --bubble
     and UnitBuffID("target", 19263) == nil --deterrance
@@ -404,16 +276,11 @@ if not funcs then funcs = true
     then
       _castSpell(49924, "target")
     end
+	
 --Death Strike 2
     if UnitExists("target") == 1
-	and _LoS("target")
     and UnitCanAttack("player","target") ~= nil
     and getHp("player") < 90
-    and cdRemains(49924) == 0
-    and rangeCheck(49924,"target") == true
-    and UnitDebuffID("target", 51724) == nil --sap
-    and UnitDebuffID("target", 33786) == nil --cyclone
-    and UnitDebuffID("target", 12826) == nil --poly
     and UnitBuffID("target", 45438) == nil --ice block
     and UnitBuffID("target", 642) == nil --bubble
     and UnitBuffID("target", 19263) == nil --deterrance
@@ -443,16 +310,11 @@ if not funcs then funcs = true
         _castSpell(49924, "target")
       end
     end
+	
 --Scourge Strike
     if UnitExists("target") == 1
-	and _LoS("target")
     and UnitCanAttack("player","target") ~= nil
     and getHp("player") > 50
-    and cdRemains(55271) == 0
-    and rangeCheck(55271,"target") == true
-    and UnitDebuffID("target", 51724) == nil --sap
-    and UnitDebuffID("target", 33786) == nil --cyclone
-    and UnitDebuffID("target", 12826) == nil --poly
     and UnitBuffID("target", 45438) == nil --ice block
     and UnitBuffID("target", 642) == nil --bubble
     and UnitBuffID("target", 19263) == nil --deterrance
@@ -466,15 +328,10 @@ if not funcs then funcs = true
     then
       _castSpell(55271, "target")
     end
+	
 --Blood Strike
     if UnitExists("target") == 1
-	and _LoS("target")
     and UnitCanAttack("player","target") ~= nil
-    and cdRemains(49930) == 0
-    and rangeCheck(49930,"target") == true
-    and UnitDebuffID("target", 51724) == nil --sap
-    and UnitDebuffID("target", 33786) == nil --cyclone
-    and UnitDebuffID("target", 12826) == nil --poly
     and UnitBuffID("target", 45438) == nil --ice block
     and UnitBuffID("target", 642) == nil --bubble
     and UnitBuffID("target", 19263) == nil --deterrance
@@ -497,18 +354,13 @@ if not funcs then funcs = true
     then
       _castSpell(49930, "target")
     end
+	
 --Chains Range
     if UnitExists("target") == 1
-	and _LoS("target")
     and UnitCanAttack("player","target") ~= nil
-    and cdRemains(45524) == 0
-    and rangeCheck(45524,"target") == true
     and rangeCheck(49924,"target") ~= true --death strike
     and UnitDebuffID("target", 45524) == nil --chains
-    and UnitDebuffID("target", 51724) == nil --sap
     and UnitBuffID("target", 48707) == nil --ams
-    and UnitDebuffID("target", 33786) == nil --cyclone
-    and UnitDebuffID("target", 12826) == nil --poly
     and UnitBuffID("target", 45438) == nil --ice block
     and UnitBuffID("target", 642) == nil --bubble
     and UnitBuffID("target", 19263) == nil --deterrance
@@ -517,18 +369,13 @@ if not funcs then funcs = true
       or GetRuneCooldown(6) == 0 )
     then _castSpell(45524, "target")
     end
+	
 --Death Coil
     if UnitExists("target") == 1
-	and _LoS("target")
     and UnitCanAttack("player","target") ~= nil
-    and cdRemains(49895) == 0
-    and rangeCheck(49895,"target") == true
     and UnitPower("player") >= 40 
-    and UnitDebuffID("target", 51724) == nil --sap
     and UnitBuffID("target", 48707) == nil --ams
     and UnitBuffID("target", 47585) == nil --dispersion
-    and UnitDebuffID("target", 33786) == nil --cyclone
-    and UnitDebuffID("target", 12826) == nil --poly
     and UnitBuffID("target", 45438) == nil --ice block
     and UnitBuffID("target", 642) == nil --bubble
     and UnitBuffID("target", 19263) == nil --deterrance

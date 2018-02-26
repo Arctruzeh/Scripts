@@ -1,5 +1,0 @@
-## Title: Arc Hpal
-## Author: Arc
-## Interface: 30300
-
-main.lua

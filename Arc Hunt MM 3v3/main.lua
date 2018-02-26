@@ -210,13 +210,13 @@ if not funcs then funcs = true
   function _castSpell(spellid,tar)
     if UnitCastingInfo("player") == nil
     and UnitChannelInfo("player") == nil
-    and not UnitIsDeadOrGhost("player")
     and cdRemains(spellid) == 0 then
       if tar ~= nil
       and rangeCheck(spellid,tar) == nil then
         return false
       elseif tar ~= nil
-      and rangeCheck(spellid,tar) == true then
+      and rangeCheck(spellid,tar) == true
+	  and _LoS(tar) then
         CastSpellByID(spellid, tar)
         return true
       elseif tar == nil then
@@ -253,9 +253,7 @@ if not funcs then funcs = true
         and UnitBuffID(unit, 45438) == nil --ice block
         and UnitBuffID(unit, 642) == nil --bubble
         and UnitBuffID(unit, 19263) == nil --deterrance
-        and _LoS(unit)
         and getHp(unit) <= 20 then
-          SpellStopCasting()
           _castSpell(61006, unit)
         end
       end
@@ -263,10 +261,9 @@ if not funcs then funcs = true
 
 --Roar of Sacrifice
     for _, unit in ipairs(PlayersList) do
-      if cdRemains(53480) == 0
-      and getHp(unit) < 40
-      and not UnitIsDeadOrGhost(unit)
-      then _castSpell(53480,unit)
+      if getHp(unit) < 40
+      and not UnitIsDeadOrGhost(unit) then 
+	  _castSpell(53480,unit)
       end
     end
 
@@ -279,7 +276,6 @@ if not funcs then funcs = true
           local spellName, _, _, _, startCast, endCast, _, _, canInterrupt = UnitCastingInfo(unit) 
           for i=1, #CCList do
             if GetSpellInfo(CCList[i]) == spellName 
-            and _LoS(unit)
             and canInterrupt == false then
               if ((endCast/1000) - GetTime()) < .5 then
                 SpellStopCasting()
@@ -290,6 +286,7 @@ if not funcs then funcs = true
         end
       end
     end
+	
 --Silence Channel
     for _, unit in ipairs(EnemyList) do
       if ValidUnit(unit, "enemy") then 
@@ -303,12 +300,12 @@ if not funcs then funcs = true
           or UnitChannelInfo(unit) == ("Seduction") )
         and not UnitBuffID(unit, 54748) --Burning Determination
         and not UnitBuffID(unit, 31821) --Aura Mastery
-        and _LoS(unit)
         then
           _castSpell(34490, unit)
         end
       end
     end
+	
 --Trap on Scatter
     for _, unit in ipairs(EnemyList) do
       local X,Y,Z = ObjectPosition(unit)
@@ -316,7 +313,9 @@ if not funcs then funcs = true
         or UnitDebuffID(unit, 10308) )
       and UnitDebuffID(unit, 49001) == nil then
         _castSpell(60192)
-        ClickPosition(X, Y, Z)
+        if SpellIsTargeting() then
+          ClickPosition(X, Y, Z)
+        end
       end
     end
 
@@ -356,7 +355,6 @@ if not funcs then funcs = true
         local spellName, _, _, _, startCast, endCast, _, _, canInterrupt = UnitCastingInfo(unit) 
         for i=1, #HealList do
           if GetSpellInfo(HealList[i]) == spellName 
-          and _LoS(unit)
           and canInterrupt == false then
             if ((endCast/1000) - GetTime()) < .9 then
               SpellStopCasting()
@@ -376,7 +374,6 @@ if not funcs then funcs = true
           for i=1, #HealList do
             if GetSpellInfo(HealList[i]) == spellName 
             and cdRemains(19503) > 2
-            and _LoS(unit)
             and canInterrupt == false then
               if ((endCast/1000) - GetTime()) < .5 then
                 SpellStopCasting()
@@ -452,7 +449,6 @@ if not funcs then funcs = true
     end
 --Concussive Shot
     if UnitExists("target") == 1
-    and _LoS("target")
     and not UnitDebuffID("target", 5116)
     and UnitCanAttack("player","target") ~= nil
     and UnitDebuffID("target", 51724) == nil --sap
@@ -490,7 +486,6 @@ if not funcs then funcs = true
     if UnitExists("target") == 1
     and _LoS("target")
     and UnitCanAttack("player","target") ~= nil
-    and cdRemains(20572) == 0
     and getHp("target") < 70 then 
       _castSpell(20572)
     end
@@ -498,7 +493,6 @@ if not funcs then funcs = true
     if UnitExists("target") == 1
     and _LoS("target")
     and UnitCanAttack("player","target") ~= nil
-    and cdRemains(3045) == 0
     and getHp("target") < 70 then 
       _castSpell(3045)
     end
@@ -556,7 +550,7 @@ if not funcs then funcs = true
     for i = 1, ObjectCount() do
       local object = ObjectWithIndex(i)
       if string.find(select(1, ObjectName(object)), "Cleansing Totem") ~= nil  
-	  and UnitBuffID("target", 8170)
+      and UnitBuffID("target", 8170)
       and UnitIsEnemy(object, "player") 
       and UnitCanAttack("player", object) == 1 then
         RunMacroText("/petattack [@"..object.."]")
