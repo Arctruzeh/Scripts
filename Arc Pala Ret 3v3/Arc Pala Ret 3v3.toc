@@ -1,0 +1,5 @@
+## Title: Arc Pala Ret 3v3
+## Author: Arc
+## Interface: 30300
+
+main.lua
