@@ -328,7 +328,7 @@ if not funcs then funcs = true
     end
 
 --Master's Call
-    for _, unit in ipairs(PlayersList) do
+    for _, unit in ipairs(PartyList) do
       if UnitExists(unit) == 1 then
           for i=1, #RootList do
             if UnitDebuffID(unit, RootList[i]) then
