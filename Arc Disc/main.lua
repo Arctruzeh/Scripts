@@ -252,14 +252,18 @@ if not funcs then funcs = true
 --Dispel Silence
     if UnitExists("party1") == 1 then
       for i=1, #SilenceList do
-        if UnitDebuffID("party1", SilenceList[i]) then
+        if UnitDebuffID("party1", SilenceList[i]) 
+        and UnitClass("party1") ~= "Warrior" 
+        and UnitClass("party1") ~= "Rogue" then
           _castSpell(988, "party1")
         end
       end
     end
     if UnitExists("party2") == 1 then
       for i=1, #SilenceList do
-        if UnitDebuffID("party2", SilenceList[i]) then
+        if UnitDebuffID("party2", SilenceList[i]) 
+        and UnitClass("party2") ~= "Warrior" 
+        and UnitClass("party2") ~= "Rogue" then
           _castSpell(988, "party2")
         end
       end

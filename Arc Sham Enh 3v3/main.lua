@@ -1,19 +1,12 @@
 if not funcs then funcs = true
 
-  PartyList = {
-    "player",
-    "party1",
-    "party2",
-    "playerpet",
-    "partypet2",
-    "partypet3",
-  }
+  PartyUnits = { "player", "party1", "party2" }
 
-  PlayersList = {
-    "player",
-    "party1",
-    "party2",
-  }
+  PartyPetUnits = { "playerpet", "partypet1", "partypet2" }
+
+  PartyList = { "player", "party1", "party2", "playerpet", "partypet1", "partypet2" }
+
+  EnemyList = { "arena1", "arena2", "arena3", "arenapet1", "arenapet2", "arenapet3" }
 
   HealList = {
     49276, --Lesser Healing Wave : Rank 9
@@ -48,17 +41,6 @@ if not funcs then funcs = true
     50796, --Chaos Bolt
     47843, --Unstable Affliction
     60043, --Lava Burst
-  }
-
-  EnemyList = {
-    "target",
-    "focus",
-    "arena1",
-    "arena2",
-    "arena3",
-    "arenapet1",
-    "arenapet2",
-    "arenapet3",
   }
 
   PurgeList = {
@@ -163,27 +145,6 @@ if not funcs then funcs = true
     end
   end
 
-  function PlayerLowest()
-    if getHp("player") < getHp("party1")
-    and getHp("player") < getHp("party2") then
-      return true
-    end
-  end
-
-  function Party1Lowest()
-    if getHp("party1") < getHp("player")
-    and getHp("party1") < getHp("party2") then
-      return true
-    end
-  end
-
-  function Party2Lowest()
-    if getHp("party2") < getHp("party1")
-    and getHp("party2") < getHp("player") then
-      return true
-    end
-  end
-
   function rangeCheck(spellid,unit)
     if IsSpellInRange(GetSpellInfo(spellid),unit) == 1 then
       return true
@@ -211,20 +172,17 @@ if not funcs then funcs = true
   function _castSpell(spellid,tar)
     if UnitCastingInfo("player") == nil
     and UnitChannelInfo("player") == nil
-    and not UnitIsDeadOrGhost("player")
-    and cdRemains(spellid) == 0
-    then
+    and cdRemains(spellid) == 0 
+    and UnitIsDead("player") == nil then
       if tar ~= nil
-      and rangeCheck(spellid,tar) == nil
-      then
+      and rangeCheck(spellid,tar) == nil then
         return false
       elseif tar ~= nil
       and rangeCheck(spellid,tar) == true
-      then
+      and _LoS(tar) then
         CastSpellByID(spellid, tar)
         return true
-      elseif tar == nil
-      then
+      elseif tar == nil then
         CastSpellByID(spellid)
         return true
       else
@@ -249,6 +207,15 @@ if not funcs then funcs = true
   --ROTATION START--
   ------------------
   function Rotation()
+--Lowest HP Party Member
+    local lowest = nil
+    for i=1, #PartyUnits do
+      if UnitExists(PartyUnits[i])
+      and (lowest == nil or getHp(PartyUnits[i]) < getHp(lowest)) then
+        lowest = PartyUnits[i]  
+      end
+    end
+
 --Hex Focus
     local _,_,_,hasMaelstrom = UnitBuffID("player", 53817)
 
@@ -281,8 +248,7 @@ if not funcs then funcs = true
     and UnitBuffID("focus", 48792) == nil --IBF
     and UnitBuffID("focus", 31224) == nil --cloak of shadows
     and UnitBuffID("focus", 23920) == nil --reflect
-    and UnitPower("player") >= 131 
-    and _LoS("focus") then
+    and UnitPower("player") >= 131 then
       _castSpell(51514, "focus")
     end
 --Stoneclaw
@@ -290,9 +256,9 @@ if not funcs then funcs = true
       _castSpell(58582)
     end
 --Gift of Naruu
-    --if getHp("player") <= 60 then
-    --_castSpell(59547)
-    --end
+    if getHp("player") <= 60 then
+      _castSpell(59547)
+    end
 --Blood Fury
     if UnitExists("target") == 1
     and _LoS("target")
@@ -303,16 +269,16 @@ if not funcs then funcs = true
 --Bloodlust
     if UnitExists("target") == 1
     and _LoS("target")
-	and rangeCheck(17364, "target") == true
+  	and rangeCheck(17364, "target") == true
     and UnitCanAttack("player","target") ~= nil
-	and UnitDebuffID("player", 57724) == nil
+  	and UnitDebuffID("player", 57724) == nil
     and getHp("target") < 70 then 
       _castSpell(2825)
     end
 --Feral Spirit
     if UnitExists("target") == 1
     and _LoS("target")
-	and rangeCheck(17364, "target") == true
+  	and rangeCheck(17364, "target") == true
     and UnitCanAttack("player","target") ~= nil
     and getHp("target") < 70 then 
       _castSpell(51533)
@@ -411,27 +377,14 @@ if not funcs then funcs = true
     end
 --Heal 3v3
     local _,_,_,hasMaelstrom = UnitBuffID("player", 53817)
-    if PlayerLowest
-    and hasMaelstrom == 5
-    and getHp("player") < 80 then
-      _castSpell(49273, "player")
-    end
-    if Party1Lowest
-    and hasMaelstrom == 5
-    and _LoS("party1")
-    and getHp("party1") < 80 then
-      _castSpell(49273, "party1")
-    end
-    if Party2Lowest
-    and hasMaelstrom == 5
-    and _LoS("party2")
-    and getHp("party2") < 80 then
-      _castSpell(49273, "party2")
+
+    if getHp(lowest) < 80 
+    and hasMaelstrom == 5 then 
+      _castSpell(49273, lowest)
     end
 --Frost Shock 15yds <=
     if ValidUnit("target", "enemy")
-	and GetDistanceBetweenObjects("player", "target") >= 15
-    and _LoS("target") then
+	and GetDistanceBetweenObjects("player", "target") >= 15 then
       _castSpell(49236,"target")
     end
 --Purgeb4dmg
@@ -441,7 +394,6 @@ if not funcs then funcs = true
     and UnitBuffID("target", 642) == nil --bubble
     and UnitBuffID("target", 19263) == nil --deterrance
     and UnitBuffID("target", 31224) == nil --cloak of shadows
-    and _LoS("target")
     then
       for i=1, #Purgeb4dmgList do
         if UnitBuffID("target", Purgeb4dmgList[i]) then
@@ -471,7 +423,7 @@ if not funcs then funcs = true
     and UnitBuffID("target", 45438) == nil --ice block
     and UnitBuffID("target", 642) == nil --bubble
     and UnitBuffID("target", 19263) == nil --deterrance
-    and _LoS("target") then
+    then
       _castSpell(49238,"target")
     end
 --Flame Shock
@@ -481,7 +433,7 @@ if not funcs then funcs = true
     and UnitBuffID("target", 45438) == nil --ice block
     and UnitBuffID("target", 642) == nil --bubble
     and UnitBuffID("target", 19263) == nil --deterrance
-    and _LoS("target") then
+    then
       _castSpell(49233,"target")
     end
 --Earthbind
@@ -497,7 +449,6 @@ if not funcs then funcs = true
     and UnitBuffID("target", 642) == nil --bubble
     and UnitBuffID("target", 19263) == nil --deterrance
     and UnitBuffID("target", 31224) == nil --cloak of shadows
-    and _LoS("target")
     then
       for i=1, #PurgeList do
         if UnitBuffID("target", PurgeList[i]) then
