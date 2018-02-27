@@ -35,14 +35,6 @@ if not funcs then funcs = true
     605, --Mind Control
   }
 
-  DMGList = {
-    34914, --Vampiric Touch
-    42842, --Frostbolt
-    50796, --Chaos Bolt
-    47843, --Unstable Affliction
-    60043, --Lava Burst
-  }
-
   function UnitBuffID(unit, id)    
     return UnitBuff(unit, GetSpellInfo(id))
   end

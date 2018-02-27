@@ -27,21 +27,6 @@ if not funcs then funcs = true
     51209, --hungering cold
   }
 
-  CCList = {
-    51514, --Hex
-    12826, --Sheep
-    28271, --Turtle
-    61721, --Rabbit
-    61305, --Black Cat
-    28272, --Pig
-    33786, --Cyclone
-    53308, --Entangline Roots
-    18658, --Hibernate
-    6215, --Fear
-    17928, --Howl of Terror
-    605, --Mind Control
-  }
-
   SilenceList = {
     15487, --Silence
     47476, --Strangulate
@@ -58,28 +43,6 @@ if not funcs then funcs = true
     33395, --pet nova
     53313, --nature's grasp
     53308, --entangling roots
-  }
-
-  SlowList = {
-    42842, --frostbolt max rank
-    116, --frostbolt r1
-    42931, --cone of cold
-    47610, --frostfire bolt
-    59638, --mirror images
-    7321, --chilled
-    31589, --slow
-    49236, --frost shock
-    3600, --earthbind
-    61291, --shadow flame
-    18118, --conflagrate aftermath daze
-    45524, --chains of ice
-  }
-
-  DotList = {
-    47811, --Immolate
-    47813, --corruption
-    49233, --flame shock
-    48300, --devouring plague
   }
 
   DKList = {
@@ -215,6 +178,7 @@ if not funcs then funcs = true
         end
       end
     end
+    
 --SWD Cast
     for _, unit in ipairs(EnemyList) do
       if ValidUnit(unit, "enemy") then
@@ -234,6 +198,7 @@ if not funcs then funcs = true
         end
       end
     end
+
 --Dispel HardCC
     if UnitExists("party1") == 1 then
       for i=1, #HardCCList do
@@ -249,6 +214,7 @@ if not funcs then funcs = true
         end
       end
     end
+
 --Dispel Silence
     if UnitExists("party1") == 1 then
       for i=1, #SilenceList do
@@ -268,6 +234,7 @@ if not funcs then funcs = true
         end
       end
     end
+
 --Dispel Root Player
     for _, unit in ipairs(PartyList) do
       if UnitExists("player") == 1 
@@ -279,6 +246,7 @@ if not funcs then funcs = true
           end
         end
       end
+
 --Dispel Root P1
     for _, unit in ipairs(PartyList) do
       if UnitExists("party1") == 1 
@@ -290,6 +258,7 @@ if not funcs then funcs = true
           end
         end
       end
+
 --Dispel Root P2
     for _, unit in ipairs(PartyList) do
       if UnitExists("party2") == 1 
@@ -301,6 +270,7 @@ if not funcs then funcs = true
           end
         end
       end
+
 --Abolish Disease
     --dk
     for i=1, #DKList do
@@ -316,6 +286,7 @@ if not funcs then funcs = true
     and UnitBuffID("player", 552) == nil then 
       _castSpell(552, "player")
     end
+
 --Fiend Crawl
     for _, unit in ipairs(EnemyList) do
       if ValidUnit(unit, "enemy") then
@@ -325,23 +296,28 @@ if not funcs then funcs = true
         end
       end
     end
+
 --SWPain Grounding
     if UnitBuffID("target", 8178) ~= nil then
       _castSpell(48125, "target")
     end
+
 --Mind Soothe Reflect
     if UnitBuffID("target", 23920) ~= nil then
       _castSpell(453, "target")
     end
+
 --Buff Inner Fire
     if not UnitBuffID("player", 48168) then
       _castSpell(48168)
     end
+
 --Buff Fear Ward 3v3
     if not UnitBuffID("player", 6346)
     and UnitExists("party2") then
       _castSpell(6346, "player")
     end
+
 --Buff Party
     ----fortitude
     for _, unit in ipairs(PartyList) do

@@ -110,27 +110,6 @@ if not funcs then funcs = true
     end
   end
 
-  function PlayerLowest()
-    if getHp("player") < getHp("party1")
-    and getHp("player") < getHp("party2") then
-      return true
-    end
-  end
-
-  function Party1Lowest()
-    if getHp("party1") < getHp("player")
-    and getHp("party1") < getHp("party2") then
-      return true
-    end
-  end
-
-  function Party2Lowest()
-    if getHp("party2") < getHp("party1")
-    and getHp("party2") < getHp("player") then
-      return true
-    end
-  end
-
   function cdRemains(spellid)
     if select(2,GetSpellCooldown(spellid)) + (select(1,GetSpellCooldown(spellid)) - GetTime()) > 0
     then return select(2,GetSpellCooldown(spellid)) + (select(1,GetSpellCooldown(spellid)) - GetTime())
@@ -193,6 +172,15 @@ if not funcs then funcs = true
   --ROTATION START--
   ------------------
   function Rotation()
+--Lowest HP Party Member
+    local lowest = nil
+    for i=1, #PartyUnits do
+      if UnitExists(PartyUnits[i])
+      and (lowest == nil or getHp(PartyUnits[i]) < getHp(lowest)) then
+        lowest = PartyUnits[i]  
+      end
+    end
+
 --Kill Shot
     for _, unit in ipairs(EnemyList) do
       if ValidUnit(unit, "enemy") then
@@ -209,10 +197,8 @@ if not funcs then funcs = true
     end
 
 --Roar of Sacrifice
-    for _, unit in ipairs(PlayersList) do
-      if getHp(unit) < 40 then 
-	      _castSpell(53480,unit)
-      end
+    if getHp(lowest) < 40 then 
+      _castSpell(53480, lowest)
     end
 
 --Silence CC

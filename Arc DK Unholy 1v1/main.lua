@@ -141,12 +141,11 @@ if not funcs then funcs = true
 --Death and Decay
     if IsLeftAltKeyDown() 
     and not GetCurrentKeyBoardFocus() 
-    and not UnitChannelInfo("player") 
-    then
+    and not UnitChannelInfo("player") then
       _castSpell(49938)
       if SpellIsTargeting() then 
-	  CameraOrSelectOrMoveStart() 
-	  CameraOrSelectOrMoveStop() 
+	     CameraOrSelectOrMoveStart() 
+	     CameraOrSelectOrMoveStop() 
       end  
     end
 	
@@ -199,9 +198,7 @@ if not funcs then funcs = true
     and UnitBuffID("target", 31224) == nil --cloak of shadows
     and UnitDebuffID("target", 55095) ~= nil --frost fever
     and UnitDebuffID("target", 55078) ~= nil --blood plague
-    and ( GetRuneType(1) == 1
-      or GetRuneType(2) == 1 )
-    then
+    and ( GetRuneType(1) == 1 or GetRuneType(2) == 1 ) then
       _castSpell(45529)
     end
 	
@@ -227,9 +224,7 @@ if not funcs then funcs = true
     and UnitBuffID("target", 19263) == nil --deterrance
     and UnitBuffID("target", 31224) == nil --cloak of shadows
     and UnitDebuffID("target", 55095) == nil
-    and ( GetRuneCooldown(5) == 0
-      or GetRuneCooldown(6) == 0 )
-    then
+    and ( GetRuneCooldown(5) == 0 or GetRuneCooldown(6) == 0 ) then
       _castSpell(45524, "target")
     end
 	

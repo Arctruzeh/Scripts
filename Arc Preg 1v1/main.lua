@@ -98,19 +98,17 @@ if not funcs then funcs = true
   function _castSpell(spellid,tar)
     if UnitCastingInfo("player") == nil
     and UnitChannelInfo("player") == nil
-    and cdRemains(spellid) == 0
-    then
+    and cdRemains(spellid) == 0 
+    and UnitIsDead("player") == nil then
       if tar ~= nil
-      and rangeCheck(spellid,tar) == nil
-      then
+      and rangeCheck(spellid,tar) == nil then
         return false
       elseif tar ~= nil
       and rangeCheck(spellid,tar) == true
-      then
+      and _LoS(tar) then
         CastSpellByID(spellid, tar)
         return true
-      elseif tar == nil
-      then
+      elseif tar == nil then
         CastSpellByID(spellid)
         return true
       else
@@ -151,19 +149,17 @@ if not funcs then funcs = true
     or UnitDebuffID("player", 44572) --Deep Freeze
     or UnitDebuffID("player", 30283) --Shadowfury
     or UnitDebuffID("player", 8643) --kidney
-	then _castSpell(1044,"player")
+    then _castSpell(1044,"player")
     end
 --Turn Evil Undead Target
     if UnitExists("target") == 1
-	and UnitIsEnemy("player", "target")
-	and _LoS("target")
+    and UnitIsEnemy("player", "target")
     and UnitIsDead("target") == nil
     and UnitCreatureType("target") == "Undead" then 
       _castSpell(10326, "target")
     end
 --Hammer of Wrath Target
     if UnitExists("target") == 1
-	and _LoS("target")
     and UnitPower("player") > 527
     and UnitBuffID("target", 45438) == nil --ice block
     and UnitBuffID("target", 642) == nil --bubble
@@ -174,14 +170,13 @@ if not funcs then funcs = true
     end
 --HoJ Arena1
     if UnitExists("arena1") == 1
-	and UnitDebuffID("arena1", 20066) == nil --repentance
+    and UnitDebuffID("arena1", 20066) == nil --repentance
     and UnitBuffID("arena1", 642) == nil --divine shield
     and UnitBuffID("arena1", 10278) == nil --HoP
     and UnitBuffID("arena1", 8178) == nil --grounding
     and UnitBuffID("arena1", 48707) == nil --AMS
     and UnitBuffID("arena1", 48792) == nil --IBF
     and UnitBuffID("arena1", 31224) == nil --cloak of shadows
-	and _LoS("arena1")
     and UnitPower("player")>=117 then
       _castSpell(10308, "arena1")
     end
@@ -203,7 +198,6 @@ if not funcs then funcs = true
     end
 --AoW Exorcism
     if UnitExists("target") == 1
-	and _LoS("target")
     and UnitBuffID("player", 59578) 
     and UnitPower("player") > 520
     and UnitBuffID("target", 45438) == nil --ice block
@@ -219,7 +213,6 @@ if not funcs then funcs = true
 
     if UnitExists("target") == 1
     and PlayerMana <= 50 
-	and _LoS("target")
     and UnitPower("player") > 197
     and UnitBuffID("target", 45438) == nil --ice block
     and UnitBuffID("target", 642) == nil --bubble
@@ -232,7 +225,6 @@ if not funcs then funcs = true
     end
 --Judgement of Light
     if UnitExists("target") == 1
-	and _LoS("target")
     and getHp("player") <= 75 
     and UnitPower("player") > 197
     and UnitBuffID("target", 45438) == nil --ice block
@@ -246,7 +238,6 @@ if not funcs then funcs = true
     end
 --Judgement of Justice
     if UnitExists("target") == 1
-	and _LoS("target")
     and UnitPower("player") > 197
     and UnitBuffID("target", 45438) == nil --ice block
     and UnitBuffID("target", 642) == nil --bubble
@@ -259,7 +250,6 @@ if not funcs then funcs = true
     end
 --Shield of Righteousness
     if UnitExists("target") == 1
-	and _LoS("target")
     and UnitPower("player") > 26
     and UnitBuffID("target", 45438) == nil --ice block
     and UnitBuffID("target", 642) == nil --bubble
@@ -270,28 +260,22 @@ if not funcs then funcs = true
     end
 --Cleanse Root Player
     if UnitExists("player") == 1 then
-      if cdRemains(4987) == 0
-      and rangeCheck(4987, "player") == true then
-        for i=1, #RootList do
-          if UnitDebuffID("player", RootList[i]) then
-            _castSpell(4987, "player")
-          end
+      for i=1, #RootList do
+        if UnitDebuffID("player", RootList[i]) then
+          _castSpell(4987, "player")
         end
       end
     end
 --Cleanse Slow Player
     if UnitExists("player") == 1 then
-      if cdRemains(4987) == 0
-      and rangeCheck(4987, "player") == true then
-        for i=1, #SlowList do
-          if UnitDebuffID("player", SlowList[i]) then
-            _castSpell(4987, "player")
-          end
+      for i=1, #SlowList do
+        if UnitDebuffID("player", SlowList[i]) then
+          _castSpell(4987, "player")
         end
       end
     end
 --Cleanse DoT's Player
-	----dk dots
+    ----dk dots
     if UnitDebuffID("player",49194 ) == nil
     and (
       UnitDebuffID("player", 55095) --frost fever
@@ -299,15 +283,13 @@ if not funcs then funcs = true
       or UnitDebuffID("player", 55078) --blood plague
     )
     then _castSpell(4987, "player")
-      return true
     end
-	----dots
+    ----dots
     if UnitDebuffID("player", 47811) --Immolate
     or UnitDebuffID("player", 47813) --corruption
     or UnitDebuffID("player", 49233) --flame shock
     or UnitDebuffID("player", 48300) --devouring plague
     then _castSpell(4987,"player")
-      return true
     end
 --Buff Righteous Fury
     if not UnitBuffID("player", 25780) then
@@ -360,7 +342,7 @@ if not funcs then funcs = true
       Disable()
     else
       Enable()
-    end	
+    end 
   end
 
   print("Arc Preg 1v1")
