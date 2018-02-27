@@ -190,7 +190,7 @@ if not funcs then funcs = true
         lowest = PartyUnits[i]  
       end
     end
-    
+
 --Lowest HP Party Pet Member
     local lowestpet = nil
     for i=1, #PartyPetUnits do
@@ -626,77 +626,77 @@ if not funcs then funcs = true
         end
       end
     end
-  end
+
 
 --Cleanse Root P2
-  if UnitExists("party2") == 1 then
-    for i=1, #RootList do
-      if UnitDebuffID("party2", RootList[i]) then
-        _castSpell(4987, "party2")
+    if UnitExists("party2") == 1 then
+      for i=1, #RootList do
+        if UnitDebuffID("party2", RootList[i]) then
+          _castSpell(4987, "party2")
+        end
       end
     end
-  end
 
 --Buff Righteous Fury
-  if not UnitBuffID("player", 25780) then
-    _castSpell(25780)
-  end
+    if not UnitBuffID("player", 25780) then
+      _castSpell(25780)
+    end
 
 --Buff Seal of Righteousness
-  if not UnitBuffID("player", 21084) then
-    _castSpell(21084)
-  end
+    if not UnitBuffID("player", 21084) then
+      _castSpell(21084)
+    end
 
 --Buff Kings
-  for _, unit in ipairs(PartyList) do
-    if not UnitBuffID(unit, 20217)
-    and not UnitBuffID(unit, 20911)
-    and UnitPower("player")>=5000 then 
-      _castSpell(20217, unit)
+    for _, unit in ipairs(PartyList) do
+      if not UnitBuffID(unit, 20217)
+      and not UnitBuffID(unit, 20911)
+      and UnitPower("player")>=5000 then 
+        _castSpell(20217, unit)
+      end
     end
-  end
 
-end
+  end
 ----------------
 --ROTATION END--
 ----------------
 
-rate_counter = 0    
-ahk_rate = 0.10
-enabled = true
+  rate_counter = 0    
+  ahk_rate = 0.10
+  enabled = true
 
-frame = CreateFrame("Frame", nil, UIParent)
-frame:Show()    
-frame:SetScript("OnUpdate", function(self, elapsed)        
-    rate_counter = rate_counter + elapsed
-    if enabled and rate_counter > ahk_rate then            
-      Rotation()            
-      rate_counter = 0        
-    end    
-  end
-)
+  frame = CreateFrame("Frame", nil, UIParent)
+  frame:Show()    
+  frame:SetScript("OnUpdate", function(self, elapsed)        
+      rate_counter = rate_counter + elapsed
+      if enabled and rate_counter > ahk_rate then            
+        Rotation()            
+        rate_counter = 0        
+      end    
+    end
+  )
 
 -- Enable the rotation
-function Disable()
-  enabled = false
-  print("Disabled")
-end
+  function Disable()
+    enabled = false
+    print("Disabled")
+  end
 
 -- Disable the rotation
-function Enable()
-  enabled = true
-  print("Enabled")
-end
+  function Enable()
+    enabled = true
+    print("Enabled")
+  end
 
-function Toggle()
-  if enabled then
-    Disable()
-  else
-    Enable()
-  end 
-end
+  function Toggle()
+    if enabled then
+      Disable()
+    else
+      Enable()
+    end 
+  end
 
-print("Arc Pala Ret 3v3")
+  print("Arc Pala Ret 3v3")
 
 end
 
