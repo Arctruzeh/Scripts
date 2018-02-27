@@ -73,7 +73,7 @@ if not funcs then funcs = true
     48932, --Blessing of Might
     48111, --Prayer of Mending
   }
-  
+
   Purgeb4dmgList = {
     48066, --power word: shield
     43309, --ice barrier
@@ -82,13 +82,6 @@ if not funcs then funcs = true
   }
 
   EBindList = {
-    64695, --Earthbind Root
-    63685, --enhance nova
-    42917, --frost nova
-    12494, --frost bite
-    33395, --pet nova
-    53313, --nature's grasp
-    53308, --entangling roots
     2974, --Wing clip
     13809, --Ice trap
     5116, --Concussive shot
@@ -100,7 +93,7 @@ if not funcs then funcs = true
     26679, --Deadly throw
     8056, --Frost shock
     2484, --Earthbind totem
-    1715, --Hamstring		
+    1715, --Hamstring   
     12323, --Piercing howl
     48483, --Infected wounds
     42842, --frostbolt max rank
@@ -117,6 +110,16 @@ if not funcs then funcs = true
     58181, --feral disease
     3409 , --rogue crippling poison
     45524, --chains of ice
+  }
+
+  SWalkList = {
+    64695, --Earthbind Root
+    63685, --enhance nova
+    42917, --frost nova
+    12494, --frost bite
+    33395, --pet nova
+    53313, --nature's grasp
+    53308, --entangling roots
   }
 
   function UnitBuffID(unit, id)    
@@ -187,6 +190,19 @@ if not funcs then funcs = true
         return true
       else
         return false
+      end
+    end
+  end
+
+  function inEBRange()
+    for i = 1, ObjectCount() do 
+      local object = ObjectWithIndex(i) 
+      if string.find(select(1, ObjectName(object)), "Earthbind Totem") ~= nil then 
+        if GetDistanceBetweenObjects("player", object) < 12 then
+          return true
+        else
+          return false
+        end
       end
     end
   end
@@ -269,16 +285,16 @@ if not funcs then funcs = true
 --Bloodlust
     if UnitExists("target") == 1
     and _LoS("target")
-  	and rangeCheck(17364, "target") == true
+    and rangeCheck(17364, "target") == true
     and UnitCanAttack("player","target") ~= nil
-  	and UnitDebuffID("player", 57724) == nil
+    and UnitDebuffID("player", 57724) == nil
     and getHp("target") < 70 then 
       _castSpell(2825)
     end
 --Feral Spirit
     if UnitExists("target") == 1
     and _LoS("target")
-  	and rangeCheck(17364, "target") == true
+    and rangeCheck(17364, "target") == true
     and UnitCanAttack("player","target") ~= nil
     and getHp("target") < 70 then 
       _castSpell(51533)
@@ -384,7 +400,7 @@ if not funcs then funcs = true
     end
 --Frost Shock 15yds <=
     if ValidUnit("target", "enemy")
-	and GetDistanceBetweenObjects("player", "target") >= 15 then
+    and GetDistanceBetweenObjects("player", "target") >= 15 then
       _castSpell(49236,"target")
     end
 --Purgeb4dmg
@@ -436,12 +452,16 @@ if not funcs then funcs = true
     then
       _castSpell(49233,"target")
     end
+
 --Earthbind
+    local _,t,_,_ = GetTotemInfo(2);
     for i=1, #EBindList do
-      if UnitDebuffID("player", EBindList[i]) then
+      if UnitDebuffID("player", EBindList[i]) 
+      and ( t~="Earthbind Totem" or t==nil or inEBRange() == false ) then
         _castSpell(2484)
       end
     end
+
 --Purge
     if ValidUnit("target", "enemy") 
     and UnitDebuffID("target", 33786) == nil --cyclone
@@ -582,7 +602,7 @@ if not funcs then funcs = true
       Disable()
     else
       Enable()
-    end	
+    end 
   end
 
   print("Arc Sham Enh 3v3")

@@ -1,5 +1,13 @@
 if not funcs then funcs = true
 
+  PartyUnits = { "player", "party1", "party2" }
+
+  PartyPetUnits = { "playerpet", "partypet1", "partypet2" }
+
+  PartyList = { "player", "party1", "party2", "playerpet", "partypet1", "partypet2" }
+
+  EnemyList = { "arena1", "arena2", "arena3", "arenapet1", "arenapet2", "arenapet3" }
+
   HealList = {
     49276, --Lesser Healing Wave : Rank 9
     49273, --Healing Wave
@@ -33,15 +41,6 @@ if not funcs then funcs = true
     50796, --Chaos Bolt
     47843, --Unstable Affliction
     60043, --Lava Burst
-  }
-
-  EnemyList = {
-    "arena1",
-    "arena2",
-    "arena3",
-    "arenapet1",
-    "arenapet2",
-    "arenapet3",
   }
 
   function UnitBuffID(unit, id)    
@@ -85,20 +84,17 @@ if not funcs then funcs = true
   function _castSpell(spellid,tar)
     if UnitCastingInfo("player") == nil
     and UnitChannelInfo("player") == nil
-    and not UnitIsDeadOrGhost("player")
-    and cdRemains(spellid) == 0
-    then
+    and cdRemains(spellid) == 0 
+    and UnitIsDead("player") == nil then
       if tar ~= nil
-      and rangeCheck(spellid,tar) == nil
-      then
+      and rangeCheck(spellid,tar) == nil then
         return false
       elseif tar ~= nil
       and rangeCheck(spellid,tar) == true
-      then
+      and _LoS(tar) then
         CastSpellByID(spellid, tar)
         return true
-      elseif tar == nil
-      then
+      elseif tar == nil then
         CastSpellByID(spellid)
         return true
       else
@@ -142,9 +138,9 @@ if not funcs then funcs = true
           for i=1, #CCList do
             if GetSpellInfo(CCList[i]) == spellName 
             and canInterrupt == false 
-			and _LoS(unit) then
+            and _LoS(unit) then
               if ((endCast/1000) - GetTime()) < .5 then
-                --SpellStopCasting()
+                SpellStopCasting()
                 CastSpellByID(57994, unit)
               end
             end
@@ -163,7 +159,7 @@ if not funcs then funcs = true
           for i=1, #CCList do
             if GetSpellInfo(CCList[i]) == spellName then
               if ((endCast/1000) - GetTime()) < .6 
-			  and _LoS(unit) then
+              and _LoS(unit) then
                 SpellStopCasting()
                 _castSpell(8177)
               end
@@ -185,7 +181,7 @@ if not funcs then funcs = true
           or UnitChannelInfo(unit) == ("Seduction") )
         and not UnitBuffID(unit, 54748) --Burning Determination
         and not UnitBuffID(unit, 31821) --Aura Mastery
-		and _LoS(unit)
+        and _LoS(unit)
         then
           _castSpell(57994, unit)
         end
@@ -201,8 +197,8 @@ if not funcs then funcs = true
             if GetSpellInfo(HealList[i]) == spellName 
             and canInterrupt == false then
               if ((endCast/1000) - GetTime()) < .6 
-			  and _LoS(unit) then
-                --SpellStopCasting()
+              and _LoS(unit) then
+                SpellStopCasting()
                 _castSpell(57994, unit)
               end
             end
