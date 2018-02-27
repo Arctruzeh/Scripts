@@ -104,7 +104,7 @@ if not funcs then funcs = true
 
   function CanHeal(unit)
     if UnitExists(unit)
-	and _LoS(unit)
+    and _LoS(unit)
     and UnitIsConnected(unit)
     and not UnitIsCharmed(unit) 
     and not UnitDebuffID(unit, 33786) --Cyclone
@@ -147,20 +147,17 @@ if not funcs then funcs = true
   function _castSpell(spellid,tar)
     if UnitCastingInfo("player") == nil
     and UnitChannelInfo("player") == nil
-    and cdRemains(spellid) == 0
-	and UnitIsDead("player") == nil
-    then
+    and cdRemains(spellid) == 0 
+    and UnitIsDead("player") == nil then
       if tar ~= nil
-      and rangeCheck(spellid,tar) == nil
-      then
+      and rangeCheck(spellid,tar) == nil then
         return false
       elseif tar ~= nil
       and rangeCheck(spellid,tar) == true
-      then
+      and _LoS(tar) then
         CastSpellByID(spellid, tar)
         return true
-      elseif tar == nil
-      then
+      elseif tar == nil then
         CastSpellByID(spellid)
         return true
       else
@@ -190,27 +187,31 @@ if not funcs then funcs = true
     for i=1, #PartyUnits do
       if UnitExists(PartyUnits[i])
       and (lowest == nil or getHp(PartyUnits[i]) < getHp(lowest)) then
-        lowest = PartyUnits[i]	
+        lowest = PartyUnits[i]  
       end
     end
+    
 --Lowest HP Party Pet Member
     local lowestpet = nil
     for i=1, #PartyPetUnits do
       if UnitExists(PartyPetUnits[i])
       and (lowestpet == nil or getHp(PartyPetUnits[i]) < getHp(lowestpet)) then
-        lowestpet = PartyPetUnits[i]	
+        lowestpet = PartyPetUnits[i]  
       end
     end
+
 --Divine Shield
     if getHp("player") <= 20 then
       _castSpell(642)
     end
+
 --Divine Protection
     if cdRemains(642) > 10
     and getHp("player") <= 10 
     and UnitDebuffID("player",25771 ) == nil then
       _castSpell(498)
     end
+
 --HoF Stun Player
     if UnitDebuffID("player", 10308) --HoJ
     or UnitDebuffID("player", 44572) --Deep Freeze
@@ -219,28 +220,27 @@ if not funcs then funcs = true
     then _castSpell(1044,"player")
       return true
     end
+
 --HoF Stun P1
-    if _LoS("party1")
-    and (
+    if (
       UnitDebuffID("party1", 10308) --HoJ
       or UnitDebuffID("party1", 44572) --Deep Freeze
       or UnitDebuffID("party1", 8643) --kidney
       ) then 
       _castSpell(1044,"party1")
     end
+
 --HoF Stun P2
-    if _LoS("party2")
-    and (
+    if (
       UnitDebuffID("party2", 10308) --HoJ
       or UnitDebuffID("party2", 44572) --Deep Freeze
       or UnitDebuffID("party2", 8643) --kidney
       ) then 
       _castSpell(1044,"party2")
     end
+
 --HoP P1
     if UnitExists("party1") == 1
-    and _LoS("party1")
-    and cdRemains(10278) == 0
     and getHp("party1") < 25
     and UnitClass("party1") ~= "Warrior"
     then
@@ -267,10 +267,9 @@ if not funcs then funcs = true
         _castSpell(10278,"party1")
       end
     end
+
 --HoP P2
     if UnitExists("party2") == 1
-    and _LoS("party2")
-    and cdRemains(10278) == 0
     and getHp("party2") < 25
     and UnitClass("party2") ~= "Warrior"
     then
@@ -297,6 +296,7 @@ if not funcs then funcs = true
         _castSpell(10278,"party2")
       end
     end
+
 --Turn Evil Undead Target
     if UnitExists("target") == 1
     and UnitIsEnemy("player", "target")
@@ -305,6 +305,7 @@ if not funcs then funcs = true
     and UnitCreatureType("target") == "Undead" then 
       _castSpell(10326, "target")
     end
+
 --Hammer of Wrath
     for _, unit in ipairs(EnemyList) do
       if ValidUnit(unit, "enemy") then
@@ -315,98 +316,81 @@ if not funcs then funcs = true
         and UnitBuffID(unit, 642) == nil --bubble
         and UnitBuffID(unit, 19263) == nil --deterrance
         and UnitBuffID(unit, 31224) == nil --cloak of shadows
-        and _LoS(unit)
         and getHp(unit) <= 20 then
           _castSpell(48806, unit)
         end
       end
     end
+
 --Cleanse Hard CC P1
-    if UnitExists("party1") == 1 
-    and _LoS("party1")then
-      if cdRemains(4987) == 0
-      and rangeCheck(4987, "party1") == true then
-        for i=1, #HardCCList do
-          if UnitDebuffID("party1", HardCCList[i]) then
-            _castSpell(4987, "party1")
-          end
+    if UnitExists("party1") == 1 then
+      for i=1, #HardCCList do
+        if UnitDebuffID("party1", HardCCList[i]) then
+          _castSpell(4987, "party1")
         end
       end
     end
+
 --Cleanse Hard CC P2
-    if UnitExists("party2") == 1 
-    and _LoS("party2")then
-      if cdRemains(4987) == 0
-      and rangeCheck(4987, "party2") == true then
-        for i=1, #HardCCList do
-          if UnitDebuffID("party2", HardCCList[i]) then
-            _castSpell(4987, "party2")
-          end
+    if UnitExists("party2") == 1 then
+      for i=1, #HardCCList do
+        if UnitDebuffID("party2", HardCCList[i]) then
+          _castSpell(4987, "party2")
         end
       end
     end
+
 --Cleanse Silence P1
     if UnitExists("party1") == 1 
-    and _LoS("party1")
     and UnitClass("party1") ~= "Warrior" 
     and UnitClass("party1") ~= "Rogue" then
-      if cdRemains(4987) == 0
-      and rangeCheck(4987, "party1") == true then
-        for i=1, #SilenceList do
-          if UnitDebuffID("party1", SilenceList[i]) then
-            _castSpell(4987, "party1")
-          end
+      for i=1, #SilenceList do
+        if UnitDebuffID("party1", SilenceList[i]) then
+          _castSpell(4987, "party1")
         end
       end
     end
+
 --Cleanse Silence P2
     if UnitExists("party2") == 1 
-    and _LoS("party2")
     and UnitClass("party2") ~= "Warrior" 
     and UnitClass("party2") ~= "Rogue" then
-      if cdRemains(4987) == 0
-      and rangeCheck(4987, "party2") == true then
-        for i=1, #SilenceList do
-          if UnitDebuffID("party2", SilenceList[i]) then
-            _castSpell(4987, "party2")
-          end
+      for i=1, #SilenceList do
+        if UnitDebuffID("party2", SilenceList[i]) then
+          _castSpell(4987, "party2")
         end
       end
     end
+
 --Hand of Sacrifice
-    if _LoS("party1")
-    and not UnitBuffID("party1", 64205)
+    if not UnitBuffID("party1", 64205)
     and not UnitBuffID("party2", 64205)
     and getHp("party1") < 45
     and getHp("party1") > 10 then 
       _castSpell(6940,"party1")
     end
-    if _LoS("party2")
-    and not UnitBuffID("party1", 64205)
+    if not UnitBuffID("party1", 64205)
     and not UnitBuffID("party2", 64205)
     and getHp("party2") < 45
     and getHp("party2") > 10 then 
       _castSpell(6940,"party2")
     end
+
 --Divine Sacrifice
     if not UnitBuffID("party1", 6940)
     and not UnitBuffID("party2", 6940)
-    and cdRemains(64205) == 0
     and getHp("party1") > 10
     and getHp("party2") > 10
-    and (
-      getHp("party1") < 50
-      or getHp("party2") < 50 
-    )
-    then
+    and ( getHp("party1") < 50 or getHp("party2") < 50 ) then
       _castSpell(64205)
     end
+
 --Mana Divine Plea
     local PlayerMana = 100 * UnitPower("player") / UnitPowerMax("player")
-    if cdRemains(54428) == 0
-    and PlayerMana <= 60  then
+    if PlayerMana <= 60  then
       _castSpell(54428)
     end
+
 --Repentance Focus
     if UnitDebuffID("focus", 10308) == nil --hoj
     and UnitDebuffID("focus", 44572) == nil --deep freeze
@@ -435,10 +419,10 @@ if not funcs then funcs = true
     and UnitBuffID("focus", 48707) == nil --AMS
     and UnitBuffID("focus", 48792) == nil --IBF
     and UnitBuffID("focus", 31224) == nil --cloak of shadows
-    and _LoS("focus")
     and UnitPower("player")>=550 then
       _castSpell(20066, "focus")
     end
+
 --HoJ Focus
     if UnitDebuffID("focus", 20066) == nil --repentance
     and UnitDebuffID("focus", 44572) == nil --deep freeze
@@ -467,18 +451,18 @@ if not funcs then funcs = true
     and UnitBuffID("focus", 48707) == nil --AMS
     and UnitBuffID("focus", 48792) == nil --IBF
     and UnitBuffID("focus", 31224) == nil --cloak of shadows
-    and UnitPower("player")>=314 
-    and _LoS("focus") then
+    and UnitPower("player")>=314 then
       _castSpell(10308, "focus")
     end
+
 --AoW Flash of Light
     if getHp(lowest) < 85 
-	and UnitBuffID("player", 59578) then 
+    and UnitBuffID("player", 59578) then 
       _castSpell(48785, lowest)
     end
+
 --AoW Exorcism
     if UnitExists("target") == 1
-    and _LoS("target")
     and UnitBuffID("player", 59578) 
     and UnitPower("player") > 520
     and UnitDebuffID("target", 51724) == nil --sap
@@ -492,11 +476,11 @@ if not funcs then funcs = true
     then
       _castSpell(48801,"target")
     end
+
 --Judgement of Wisdom
     local PlayerMana = 100 * UnitPower("player") / UnitPowerMax("player")
     if UnitExists("target") == 1
     and PlayerMana <= 50 
-    and _LoS("target")
     and UnitPower("player") > 197
     and UnitDebuffID("target", 51724) == nil --sap
     and UnitDebuffID("target", 33786) == nil --cyclone
@@ -510,9 +494,9 @@ if not funcs then funcs = true
     then
       _castSpell(53408,"target")
     end
+
 --Judgement of Light
     if UnitExists("target") == 1
-    and _LoS("target")
     and getHp("player") <= 75 
     and UnitPower("player") > 197
     and UnitDebuffID("target", 51724) == nil --sap
@@ -527,9 +511,9 @@ if not funcs then funcs = true
     then
       _castSpell(20271,"target")
     end
+
 --Judgement of Justice
     if UnitExists("target") == 1
-    and _LoS("target")
     and UnitPower("player") > 197
     and UnitDebuffID("target", 51724) == nil --sap
     and UnitDebuffID("target", 33786) == nil --cyclone
@@ -543,9 +527,9 @@ if not funcs then funcs = true
     then
       _castSpell(53407,"target")
     end
+
 --Crusader Strike
     if UnitExists("target") == 1
-    and _LoS("target")
     and UnitPower("player") > 197
     and UnitDebuffID("target", 51724) == nil --sap
     and UnitDebuffID("target", 33786) == nil --cyclone
@@ -556,15 +540,14 @@ if not funcs then funcs = true
     then
       _castSpell(35395, "target")
     end
+
 --Divine Storm
-    if ValidUnit("target", "enemy") 
-    and _LoS("target") then
+    if ValidUnit("target", "enemy") then
       if UnitBuffID("target", 45438) == nil --ice block
       and UnitBuffID("target", 642) == nil --bubble
       and UnitBuffID("target", 19263) == nil --deterrance
       and UnitDebuffID("target", 33786) == nil --cyclone
-	  and GetDistanceBetweenObjects ("player", "target") < 9
-      then
+      and GetDistanceBetweenObjects ("player", "target") < 9 then
         for _, unit in ipairs(EnemyList) do
           if UnitDebuffID(unit, 51724) == nil --sap
           and UnitDebuffID(unit, 2094) == nil --blind
@@ -578,18 +561,17 @@ if not funcs then funcs = true
               or UnitDebuffID(unit, 12826) --poly
               or UnitDebuffID(unit, 20066) --rep
             ) 
-            and GetDistanceBetweenObjects ("player", unit) > 9
-            then
+            and GetDistanceBetweenObjects ("player", unit) > 9 then
               _castSpell(53385)
             end
           end
         end
       end
     end
+
 --Shield of Righteousness
     if UnitExists("target") == 1
     and IsEquippedItem(Shield)
-    and _LoS("target")
     and UnitPower("player") > 26
     and UnitDebuffID("target", 51724) == nil --sap
     and UnitDebuffID("target", 33786) == nil --cyclone
@@ -601,9 +583,9 @@ if not funcs then funcs = true
     then 
       _castSpell(61411,"target")
     end
+
 --Sacred 3v3
-    if _LoS(lowest)
-    and UnitBuffID(lowest, 53601) == nil
+    if UnitBuffID(lowest, 53601) == nil
     and getHp("party1") ~= getHp("player")
     and getHp("party1") ~= getHp("party2")
     and getHp(lowest) < 95 then
@@ -611,117 +593,110 @@ if not funcs then funcs = true
     end
 
     if UnitBuffID("player", 32727)
-    and _LoS("party1")
     and UnitBuffID("player", 53601) == nil
     and UnitBuffID("party1", 53601) == nil
     and UnitBuffID("party2", 53601) == nil
     then 
       _castSpell(53601, "party1")
     end
+
 --Cleanse Root Player
     if UnitExists("player") == 1 then
-      if cdRemains(4987) == 0
-      and rangeCheck(4987, "player") == true then
-        for i=1, #RootList do
-          if UnitDebuffID("player", RootList[i]) then
-            _castSpell(4987, "player")
-          end
+      for i=1, #RootList do
+        if UnitDebuffID("player", RootList[i]) then
+          _castSpell(4987, "player")
         end
       end
     end
+
 --Cleanse Slow Player
     if UnitExists("player") == 1 then
-      if cdRemains(4987) == 0
-      and rangeCheck(4987, "player") == true then
-        for i=1, #SlowList do
-          if UnitDebuffID("player", SlowList[i]) then
-            _castSpell(4987, "player")
-          end
+      for i=1, #SlowList do
+        if UnitDebuffID("player", SlowList[i]) then
+          _castSpell(4987, "player")
         end
       end
     end
+
 --Cleanse Root P1
-    if UnitExists("party1") == 1 
-    and _LoS("party1") then
-      if cdRemains(4987) == 0
-      and rangeCheck(4987, "party1") == true then
-        for i=1, #RootList do
-          if UnitDebuffID("party1", RootList[i]) then
-            _castSpell(4987, "party1")
-          end
+    if UnitExists("party1") == 1 then
+      for i=1, #RootList do
+        if UnitDebuffID("party1", RootList[i]) then
+          _castSpell(4987, "party1")
         end
       end
     end
+  end
+
 --Cleanse Root P2
-    if UnitExists("party2") == 1 
-    and _LoS("party2") then
-      if cdRemains(4987) == 0
-      and rangeCheck(4987, "party2") == true then
-        for i=1, #RootList do
-          if UnitDebuffID("party2", RootList[i]) then
-            _castSpell(4987, "party2")
-          end
-        end
+  if UnitExists("party2") == 1 then
+    for i=1, #RootList do
+      if UnitDebuffID("party2", RootList[i]) then
+        _castSpell(4987, "party2")
       end
     end
+  end
+
 --Buff Righteous Fury
-    if not UnitBuffID("player", 25780) then
-      _castSpell(25780)
-    end
+  if not UnitBuffID("player", 25780) then
+    _castSpell(25780)
+  end
+
 --Buff Seal of Righteousness
-    if not UnitBuffID("player", 21084) then
-      _castSpell(21084)
-    end
+  if not UnitBuffID("player", 21084) then
+    _castSpell(21084)
+  end
+
 --Buff Kings
-    for _, unit in ipairs(PartyList) do
-      if not UnitBuffID(unit, 20217)
-      and not UnitBuffID(unit, 20911)
-      and UnitPower("player")>=5000 then 
-        _castSpell(20217, unit)
-      end
+  for _, unit in ipairs(PartyList) do
+    if not UnitBuffID(unit, 20217)
+    and not UnitBuffID(unit, 20911)
+    and UnitPower("player")>=5000 then 
+      _castSpell(20217, unit)
     end
-
   end
-  ----------------
-  --ROTATION END--
-  ----------------
 
-  rate_counter = 0    
-  ahk_rate = 0.10
+end
+----------------
+--ROTATION END--
+----------------
+
+rate_counter = 0    
+ahk_rate = 0.10
+enabled = true
+
+frame = CreateFrame("Frame", nil, UIParent)
+frame:Show()    
+frame:SetScript("OnUpdate", function(self, elapsed)        
+    rate_counter = rate_counter + elapsed
+    if enabled and rate_counter > ahk_rate then            
+      Rotation()            
+      rate_counter = 0        
+    end    
+  end
+)
+
+-- Enable the rotation
+function Disable()
+  enabled = false
+  print("Disabled")
+end
+
+-- Disable the rotation
+function Enable()
   enabled = true
+  print("Enabled")
+end
 
-  frame = CreateFrame("Frame", nil, UIParent)
-  frame:Show()    
-  frame:SetScript("OnUpdate", function(self, elapsed)        
-      rate_counter = rate_counter + elapsed
-      if enabled and rate_counter > ahk_rate then            
-        Rotation()            
-        rate_counter = 0        
-      end    
-    end
-  )
+function Toggle()
+  if enabled then
+    Disable()
+  else
+    Enable()
+  end 
+end
 
-  -- Enable the rotation
-  function Disable()
-    enabled = false
-    print("Disabled")
-  end
-
-  -- Disable the rotation
-  function Enable()
-    enabled = true
-    print("Enabled")
-  end
-
-  function Toggle()
-    if enabled then
-      Disable()
-    else
-      Enable()
-    end	
-  end
-
-  print("Arc Pala Ret 3v3")
+print("Arc Pala Ret 3v3")
 
 end
 

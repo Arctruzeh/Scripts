@@ -1,49 +1,12 @@
 if not funcs then funcs = true
 
-  PartyList = {
-    "player",
-    "party1",
-    "party2",
-    "playerpet",
-    "partypet2",
-    "partypet3",
-  }
+  PartyUnits = { "player", "party1", "party2" }
 
-  PlayersList = {
-    "player",
-    "party1",
-    "party2",
-  }
+  PartyPetUnits = { "playerpet", "partypet1", "partypet2" }
 
-  EnemyList = {
-    "target",
-    "focus",
-    "arena1",
-    "arena2",
-    "arena3",
-    "arenapet1",
-    "arenapet2",
-    "arenapet3",
-  }
+  PartyList = { "player", "party1", "party2", "playerpet", "partypet1", "partypet2" }
 
-  HardCCList = {
-    10308, --HoJ
-    20066, --repentance
-    44572, --Deep Freeze
-    30283, --Shadowfury
-    12826, --Polymorph
-    42950, --dragons breath
-    6215, --Fear
-    10890, --Psychic Scream
-    6358, --Seduction
-    47860, --death coil
-    17928, --howl of terror
-    18647, --banish
-    60210, --freezing arrow
-    14309, --freezing trap
-    18658, --hibernate
-    51209, --hungering cold
-  }
+  EnemyList = { "arena1", "arena2", "arena3", "arenapet1", "arenapet2", "arenapet3" }
 
   CCList = {
     51514, --Hex
@@ -58,14 +21,6 @@ if not funcs then funcs = true
     6215, --Fear
     17928, --Howl of Terror
     605, --Mind Control
-  }
-
-  SilenceList = {
-    15487, --Silence
-    47476, --Strangulate
-    55021, --Counter Spell
-    34490, --silencing shot
-    24259, --spell lock
   }
 
   RootList = {
@@ -93,13 +48,6 @@ if not funcs then funcs = true
     58181, --feral disease
     3409 , --rogue crippling poison
     45524, --chains of ice
-  }
-
-  DotList = {
-    47811, --Immolate
-    47813, --corruption
-    49233, --flame shock
-    48300, --devouring plague
   }
 
   HealList = {
@@ -210,13 +158,14 @@ if not funcs then funcs = true
   function _castSpell(spellid,tar)
     if UnitCastingInfo("player") == nil
     and UnitChannelInfo("player") == nil
-    and cdRemains(spellid) == 0 then
+    and cdRemains(spellid) == 0 
+    and UnitIsDead("player") == nil then
       if tar ~= nil
       and rangeCheck(spellid,tar) == nil then
         return false
       elseif tar ~= nil
       and rangeCheck(spellid,tar) == true
-	  and _LoS(tar) then
+	    and _LoS(tar) then
         CastSpellByID(spellid, tar)
         return true
       elseif tar == nil then
@@ -261,9 +210,8 @@ if not funcs then funcs = true
 
 --Roar of Sacrifice
     for _, unit in ipairs(PlayersList) do
-      if getHp(unit) < 40
-      and not UnitIsDeadOrGhost(unit) then 
-	  _castSpell(53480,unit)
+      if getHp(unit) < 40 then 
+	      _castSpell(53480,unit)
       end
     end
 
@@ -345,10 +293,10 @@ if not funcs then funcs = true
     and UnitBuffID("focus", 642) == nil --divine shield
     and UnitBuffID("focus", 10278) == nil --HoP
     and UnitBuffID("focus", 8178) == nil --grounding
-    and IsSpellInRange(GetSpellInfo(19503),"focus") == 1
     and UnitPower("player")>=403 then
       _castSpell(19503, "focus")
     end
+
 --Scatter Heal
     for _, unit in ipairs(EnemyList) do
       if ValidUnit(unit, "enemy") then
@@ -364,6 +312,7 @@ if not funcs then funcs = true
         end
       end
     end
+
 --Silence Heal
     for _, unit in ipairs(EnemyList) do
       if ValidUnit(unit, "enemy") then
@@ -384,18 +333,17 @@ if not funcs then funcs = true
         end
       end
     end
+
 --Readiness
-    if cdRemains(23989) == 0
-    and cdRemains(19263) ~= 0
+    if cdRemains(19263) ~= 0
     and cdRemains(53271) ~= 0
     and cdRemains(781) ~= 0 then
       _castSpell(23989)
     end
+
 --Master's Call
     for _, unit in ipairs(PlayersList) do
       if UnitExists(unit) == 1 then
-        if cdRemains(53271) == 0
-        and rangeCheck(53271, unit) == true then
           for i=1, #RootList do
             if UnitDebuffID(unit, RootList[i]) then
               _castSpell(53271, unit)
@@ -403,18 +351,16 @@ if not funcs then funcs = true
           end
         end
       end
-    end
+
 --Pet Last Stand
     if UnitExists("playerpet") == 1
-    and not UnitBuffID("player", 32727)
-    and cdRemains(53478) == 0    
-    and getHp("playerpet") < 50
-    and getHp("playerpet") > 0 then 
+    and not UnitBuffID("player", 32727)   
+    and getHp("playerpet") < 50 then 
       _castSpell(53478)
     end
+
 --Mend Pet
     if UnitExists("playerpet") == 1
-    and cdRemains(48990) == 0
     and not UnitBuffID("playerpet", 48990)    
     and getHp("playerpet") < 70
     and not UnitIsDeadOrGhost("playerpet") then 
@@ -432,21 +378,26 @@ if not funcs then funcs = true
     and not UnitBuffID("player", 61847) then
       _castSpell(61847)
     end
+
 --Pet Attack Totems
     if UnitExists("mouseover")
     and UnitCreatureType("mouseover") == "Totem" then 
       PetAttack("mouseover")
     end
+
 --Raptor Strike
     if rangeCheck(53339,"target") == true then
       _castSpell(48996,"target")
     end
+
 --Mongoose Bite
     _castSpell(53339,"target")
+
 --Wing Clip
     if UnitDebuffID("target", 2974) == nil then
       _castSpell(2974,"target")
     end
+
 --Concussive Shot
     if UnitExists("target") == 1
     and not UnitDebuffID("target", 5116)
@@ -482,6 +433,7 @@ if not funcs then funcs = true
     then 
       _castSpell(5116,"target")
     end
+
 --Blood Fury
     if UnitExists("target") == 1
     and _LoS("target")
@@ -489,6 +441,7 @@ if not funcs then funcs = true
     and getHp("target") < 70 then 
       _castSpell(20572)
     end
+
 --Rapid Fire
     if UnitExists("target") == 1
     and _LoS("target")
@@ -496,6 +449,7 @@ if not funcs then funcs = true
     and getHp("target") < 70 then 
       _castSpell(3045)
     end
+
 --Tranq Shot
     if UnitBuffID("target", 48066) --power word: shield
     or UnitBuffID("target", 32182) --heroism
@@ -533,6 +487,7 @@ if not funcs then funcs = true
         _castSpell(19801,"target")
       end
     end
+
 --Aimed Shot
     if UnitExists("target") == 1
     and _LoS("target")
@@ -546,6 +501,7 @@ if not funcs then funcs = true
     then 
       _castSpell(49050,"target")
     end
+
 --Pet Kill Cleansing
     for i = 1, ObjectCount() do
       local object = ObjectWithIndex(i)
@@ -556,6 +512,7 @@ if not funcs then funcs = true
         RunMacroText("/petattack [@"..object.."]")
       end
     end
+
 --Serpent Sting
     if UnitExists("target") == 1
     and _LoS("target")
@@ -573,6 +530,7 @@ if not funcs then funcs = true
     and rangeCheck(49001,"target") == true then 
       _castSpell(49001,"target")
     end
+
 --Chimera Shot
     if UnitExists("target") == 1
     and _LoS("target")
@@ -589,6 +547,7 @@ if not funcs then funcs = true
     then 
       _castSpell(53209,"target")
     end
+
 --Arcane Shot
     if UnitExists("target") == 1
     and _LoS("target")
@@ -603,6 +562,7 @@ if not funcs then funcs = true
     then 
       _castSpell(49045,"target")
     end
+
 --Hunter's Mark
     if not  UnitDebuffID("target", 53338)
     and _LoS("target")
@@ -617,6 +577,7 @@ if not funcs then funcs = true
     then
       _castSpell(53338, "target")
     end
+
 --Steady Shot
     if UnitExists("target") == 1
     and _LoS("target")
@@ -631,10 +592,12 @@ if not funcs then funcs = true
     and rangeCheck(49052,"target") == true then 
       _castSpell(49052,"target")
     end
+
 --Trueshot Aura
     if not UnitBuffID("player", 19506) then
       _castSpell(19506)
     end
+
 --Call Pet Arena
     if UnitExists("playerpet") ~= 1
     and UnitBuffID("player", 32727) then 

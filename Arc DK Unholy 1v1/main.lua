@@ -52,13 +52,14 @@ if not funcs then funcs = true
   function _castSpell(spellid,tar)
     if UnitCastingInfo("player") == nil
     and UnitChannelInfo("player") == nil
-    and cdRemains(spellid) == 0 then
+    and cdRemains(spellid) == 0 
+    and UnitIsDead("player") == nil then
       if tar ~= nil
       and rangeCheck(spellid,tar) == nil then
         return false
       elseif tar ~= nil
       and rangeCheck(spellid,tar) == true
-	  and _LoS(tar) then
+      and _LoS(tar) then
         CastSpellByID(spellid, tar)
         return true
       elseif tar == nil then

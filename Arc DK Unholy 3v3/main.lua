@@ -96,20 +96,17 @@ if not funcs then funcs = true
   function _castSpell(spellid,tar)
     if UnitCastingInfo("player") == nil
     and UnitChannelInfo("player") == nil
-    and cdRemains(spellid) == 0
-    and UnitIsDead("player") == nil
-    then
+    and cdRemains(spellid) == 0 
+    and UnitIsDead("player") == nil then
       if tar ~= nil
-      and rangeCheck(spellid,tar) == nil
-      then
+      and rangeCheck(spellid,tar) == nil then
         return false
       elseif tar ~= nil
       and rangeCheck(spellid,tar) == true
-      then
+      and _LoS(tar) then
         CastSpellByID(spellid, tar)
         return true
-      elseif tar == nil
-      then
+      elseif tar == nil then
         CastSpellByID(spellid)
         return true
       else
@@ -186,7 +183,7 @@ if not funcs then funcs = true
 
 --MF Channel
     for _, unit in ipairs(EnemyList) do
-      if ValidUnit(unit, "enemy") then --Valid unit check if the unit is attackable (he can be under mind control u know)
+      if ValidUnit(unit, "enemy") then 
         if ( UnitChannelInfo(unit) == ("Penance")
           or UnitChannelInfo(unit) == ("Divine Hymn") 
           or UnitChannelInfo(unit) == ("Hymn of Hope") 
@@ -205,7 +202,7 @@ if not funcs then funcs = true
 
 --Gnaw Channel
     for _, unit in ipairs(EnemyList) do
-      if ValidUnit(unit, "enemy") then --Valid unit check if the unit is attackable (he can be under mind control u know)
+      if ValidUnit(unit, "enemy") then 
         if ( UnitChannelInfo(unit) == ("Penance")
           or UnitChannelInfo(unit) == ("Divine Hymn") 
           or UnitChannelInfo(unit) == ("Hymn of Hope") 
@@ -306,7 +303,6 @@ if not funcs then funcs = true
 
 --Strangulate Focus on Garg
     if UnitDebuffID("target", 49206) 
-    and _LoS("focus")
     and not UnitDebuff("focus", "Psychic Scream") 
     and UnitBuffID("target", 48707) == nil --ams
     then

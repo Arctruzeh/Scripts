@@ -1,9 +1,9 @@
 if not funcs then funcs = true
 
   PartyUnits = { "player", "party1", "party2" }
-  
+
   PartyPetUnits = { "playerpet", "partypet1", "partypet2" }
-  
+
   PartyList = { "player", "party1", "party2", "playerpet", "partypet1", "partypet2" }
 
   EnemyList = { "arena1", "arena2", "arena3", "arenapet1", "arenapet2", "arenapet3" }
@@ -95,7 +95,7 @@ if not funcs then funcs = true
   function UnitDebuffID(unit, id)    
     return UnitDebuff(unit, GetSpellInfo(id))
   end
-  
+
   function _LoS(unit,otherUnit)
     if not otherUnit then otherUnit = "player"; end
     if UnitIsVisible(unit) then
@@ -107,7 +107,7 @@ if not funcs then funcs = true
 
   function CanHeal(unit)
     if UnitExists(unit)
-	and _LoS(unit)
+    and _LoS(unit)
     and UnitIsConnected(unit)
     and not UnitIsCharmed(unit) 
     and not UnitDebuffID(unit, 33786) --Cyclone
@@ -141,19 +141,17 @@ if not funcs then funcs = true
   function _castSpell(spellid,tar)
     if UnitCastingInfo("player") == nil
     and UnitChannelInfo("player") == nil
-    and cdRemains(spellid) == 0
-    then
+    and cdRemains(spellid) == 0 
+    and UnitIsDead("player") == nil then
       if tar ~= nil
-      and rangeCheck(spellid,tar) == nil
-      then
+      and rangeCheck(spellid,tar) == nil then
         return false
       elseif tar ~= nil
       and rangeCheck(spellid,tar) == true
-      then
+      and _LoS(tar) then
         CastSpellByID(spellid, tar)
         return true
-      elseif tar == nil
-      then
+      elseif tar == nil then
         CastSpellByID(spellid)
         return true
       else
@@ -183,33 +181,36 @@ if not funcs then funcs = true
     for i=1, #PartyUnits do
       if UnitExists(PartyUnits[i])
       and (lowest == nil or getHp(PartyUnits[i]) < getHp(lowest)) then
-        lowest = PartyUnits[i]	
+        lowest = PartyUnits[i]  
       end
     end
+
 --Lowest HP Party Member without beacon
     local withoutbeacon = nil
     for i=1, #PartyUnits do
       if UnitExists(PartyUnits[i])
-	  and UnitBuffID(PartyUnits[i], 53563) == nil
+      and UnitBuffID(PartyUnits[i], 53563) == nil
       and (withoutbeacon == nil or getHp(PartyUnits[i]) < getHp(withoutbeacon)) then
-        withoutbeacon = PartyUnits[i]	
+        withoutbeacon = PartyUnits[i] 
       end
     end
+
 --Lowest HP Party Pet Member
     local lowestpet = nil
     for i=1, #PartyPetUnits do
       if UnitExists(PartyPetUnits[i])
       and (lowestpet == nil or getHp(PartyPetUnits[i]) < getHp(lowestpet)) then
-        lowestpet = PartyPetUnits[i]	
+        lowestpet = PartyPetUnits[i]  
       end
     end
+
 --Divine Shield
     if getHp("player") <= 15 then
       _castSpell(642)
     end
+
 --HoP P1
     if UnitExists("party1") == 1
-    and _LoS("party1")
     and getHp("party1") < 25
     and UnitClass("party1") ~= "Warrior"
     then
@@ -236,9 +237,9 @@ if not funcs then funcs = true
         _castSpell(10278,"party1")
       end
     end
+
 --HoP P2
     if UnitExists("party2") == 1
-    and _LoS("party2")
     and getHp("party2") < 25
     and UnitClass("party2") ~= "Warrior"
     then
@@ -265,18 +266,20 @@ if not funcs then funcs = true
         _castSpell(10278,"party2")
       end
     end
+
 --Bauble Arena
     if UnitBuffID("player", 59578) 
     and getHp(lowest) < 40 then
       UseItemByName("Bauble of True Blood", lowest)
     end
+
 --Turn Evil Undead Target
     if UnitIsEnemy("player", "target")
-    and _LoS("target")
     and UnitIsDead("target") == nil
     and UnitCreatureType("target") == "Undead" then 
       _castSpell(10326, "target")
     end
+
 --Hammer of Wrath
     for _, unit in ipairs(EnemyList) do
       if ValidUnit(unit, "enemy") then
@@ -287,13 +290,13 @@ if not funcs then funcs = true
         and UnitBuffID(unit, 642) == nil --bubble
         and UnitBuffID(unit, 19263) == nil --deterrance
         and UnitBuffID(unit, 31224) == nil --cloak of shadows
-        and _LoS(unit)
-		and getHp(lowest) > 50
+        and getHp(lowest) > 50
         and getHp(unit) <= 20 then
           _castSpell(48806, unit)
         end
       end
     end
+
 --Cleanse Hard CC P1
     if UnitExists("party1") == 1 
     and CanHeal("party1") then
@@ -303,6 +306,7 @@ if not funcs then funcs = true
         end
       end
     end
+
 --Cleanse Hard CC P2
     if UnitExists("party2") == 1 
     and CanHeal("party2") then
@@ -312,6 +316,7 @@ if not funcs then funcs = true
         end
       end
     end
+
 --Cleanse Silence P1
     if UnitExists("party1") == 1 
     and CanHeal("party1")
@@ -323,6 +328,7 @@ if not funcs then funcs = true
         end
       end
     end
+
 --Cleanse Silence P2
     if UnitExists("party2") == 1 
     and CanHeal("party2")
@@ -334,51 +340,49 @@ if not funcs then funcs = true
         end
       end
     end
+
 --Cleanse Root P1 lowest > 60
     if UnitExists("party1") == 1 
-	and getHp(lowest) > 60
-    and ( UnitClass("party1") == "Warrior" 
-	or UnitClass("party1") == "Rogue"
-	or UnitClass("party1") == "Death Knight" )
-    and _LoS("party1") then
+    and getHp(lowest) > 60
+    and ( UnitClass("party1") == "Warrior" or UnitClass("party1") == "Rogue" or UnitClass("party1") == "Death Knight" ) then
       for i=1, #RootList do
         if UnitDebuffID("party1", RootList[i]) then
           _castSpell(4987, "party1")
         end
       end
     end
+
 --Cleanse Root P2 lowest > 60
     if UnitExists("party2") == 1 
-	and getHp(lowest) > 60
-    and ( UnitClass("party2") == "Warrior" 
-	or UnitClass("party2") == "Rogue"
-	or UnitClass("party2") == "Death Knight" )
-    and _LoS("party2") then
+    and getHp(lowest) > 60
+    and ( UnitClass("party2") == "Warrior" or UnitClass("party2") == "Rogue" or UnitClass("party2") == "Death Knight" ) then
       for i=1, #RootList do
         if UnitDebuffID("party2", RootList[i]) then
           _castSpell(4987, "party2")
         end
       end
     end
+
 --HoJ CC
     for _, unit in ipairs(EnemyList) do
       local spellName, _, _, _, startCast, endCast, _, _, canInterrupt = UnitCastingInfo(unit) 
       for i=1, #CCList do
         if GetSpellInfo(CCList[i]) == spellName 
-        and canInterrupt == false 
-        and _LoS(unit) then
+        and canInterrupt == false then
           if ((endCast/1000) - GetTime()) < .5 then
             _castSpell(10308, unit)
           end
         end
       end
     end
+
 --Mana Divine Illumination
     local PlayerMana = 100 * UnitPower("player") / UnitPowerMax("player")
 
     if PlayerMana <= 75  then
       _castSpell(31842)
     end
+
 --Mana Divine Plea
     local PlayerMana = 100 * UnitPower("player") / UnitPowerMax("player")
 
@@ -386,97 +390,98 @@ if not funcs then funcs = true
     and PlayerMana <= 60  then
       _castSpell(54428)
     end
+
 --Freedom P1
-    if UnitExists("party1") == 1 
-    and _LoS("party1") then
+    if UnitExists("party1") == 1 then
       for i=1, #RootList do
         if UnitDebuffID("party1", RootList[i]) then
           _castSpell(1044, "party1")
         end
       end
     end
+
 --Freedom P2
-    if UnitExists("party2") == 1 
-    and _LoS("party2") then
+    if UnitExists("party2") == 1 then
       for i=1, #RootList do
         if UnitDebuffID("party2", RootList[i]) then
           _castSpell(1044, "party2")
         end
       end
     end
+
 --Heal Pets
     --insta flash of light
     if UnitBuffID("player", 54149) 
-    and _LoS(lowestpet)
     and getHp(lowestpet) < 85
     and getHp(lowestpet) < getHp(lowest) then 
-		_castSpell(48785, lowestpet)
+      _castSpell(48785, lowestpet)
     end
+
     --holy shock
     if getHp(lowestpet) < 85
-    and _LoS(lowestpet)
     and getHp(lowestpet) < getHp(lowest) then 
-		_castSpell(48825, lowestpet)
+      _castSpell(48825, lowestpet)
     end
+
     --flash of light
     if getHp(lowestpet) < 85
-    and _LoS(lowestpet)
     and getHp(lowestpet) < getHp(lowest) then 
-		_castSpell(48785, lowestpet)
+      _castSpell(48785, lowestpet)
     end
+
 --Infusion of Light
     if UnitBuffID("player", 54149) 
     and getHp(lowest) < 85 then
       _castSpell(48785, withoutbeacon)
     end
+
 --Divine Favor
     if getHp(lowest) < 50 then
       _castSpell(20216)
     end
+
 --Holy Shock
     if getHp(lowest) < 70 then 
       _castSpell(48825, withoutbeacon)
     end
+
 --Hand of Sacrifice
-    if _LoS("party1")
-    and not UnitBuffID("party1", 64205)
+    if not UnitBuffID("party1", 64205)
     and not UnitBuffID("party2", 64205)
     and getHp("party1") < 45
     and getHp("party1") > 10 then 
       _castSpell(6940,"party1")
     end
-    if _LoS("party2")
-    and not UnitBuffID("party1", 64205)
+    if not UnitBuffID("party1", 64205)
     and not UnitBuffID("party2", 64205)
     and getHp("party2") < 45
     and getHp("party2") > 10 then 
       _castSpell(6940,"party2")
     end
+
 --Divine Sacrifice
     if not UnitBuffID("party1", 6940)
     and not UnitBuffID("party2", 6940)
     and getHp("party1") > 10
     and getHp("party2") > 10
-    and (
-      getHp("party1") < 50
-      or getHp("party2") < 50 
-    )
-    then
+    and ( getHp("party1") < 50 or getHp("party2") < 50 ) then
       _castSpell(64205)
     end
+
 --Flash of Light
     if getHp(lowest) < 85 then 
       _castSpell(48785, withoutbeacon)
     end
+
 --Flash of Light
     if getHp("player") < 95
-	and getHp("party1") > 95
-	and getHp("party2") > 95 then 
+    and getHp("party1") > 95
+    and getHp("party2") > 95 then 
       _castSpell(48785, "player")
     end
+
 --Sacred Shield
-    if _LoS(lowest)
-    and UnitBuffID(lowest, 53601) == nil
+    if UnitBuffID(lowest, 53601) == nil
     and getHp("party1") ~= getHp("player")
     and getHp("party1") ~= getHp("party2")
     and getHp(lowest) < 95 then
@@ -484,19 +489,18 @@ if not funcs then funcs = true
     end
 
     if UnitBuffID("player", 32727)
-    and _LoS("party1")
     and UnitBuffID("player", 53601) == nil
     and UnitBuffID("party1", 53601) == nil
-    and UnitBuffID("party2", 53601) == nil
-    then 
+    and UnitBuffID("party2", 53601) == nil then 
       _castSpell(53601, "party1")
     end
+
 --Beacon Focus
     if UnitExists("focus") == 1
-    and _LoS("focus")
     and not UnitBuffID("focus", 53563) then 
       _castSpell(53563, "focus")
     end
+
 --Cleanse Root Player
     if UnitExists("player") == 1 then
       for i=1, #RootList do
@@ -505,24 +509,25 @@ if not funcs then funcs = true
         end
       end
     end
+
 --Cleanse Root P1
-    if UnitExists("party1") == 1 
-    and _LoS("party1") then
+    if UnitExists("party1") == 1 then
       for i=1, #RootList do
         if UnitDebuffID("party1", RootList[i]) then
           _castSpell(4987, "party1")
         end
       end
     end
+
 --Cleanse Root P2
-    if UnitExists("party2") == 1 
-    and _LoS("party2") then
+    if UnitExists("party2") == 1 then
       for i=1, #RootList do
         if UnitDebuffID("party2", RootList[i]) then
           _castSpell(4987, "party2")
         end
       end
     end
+
 --Cleanse Slow Player
     if UnitExists("player") == 1 then
       for i=1, #SlowList do
@@ -531,28 +536,28 @@ if not funcs then funcs = true
         end
       end
     end
+
 --Cleanse Slow P1
-    if UnitExists("party1") == 1 
-    and _LoS("party1") then
+    if UnitExists("party1") == 1 then
       for i=1, #SlowList do
         if UnitDebuffID("party1", SlowList[i]) then
           _castSpell(4987, "party1")
         end
       end
     end
+
 --Cleanse Slow P2
-    if UnitExists("party2") == 1 
-    and _LoS("party2") then
+    if UnitExists("party2") == 1 then
       for i=1, #SlowList do
         if UnitDebuffID("party2", SlowList[i]) then
           _castSpell(4987, "party2")
         end
       end
     end
+
 --Cleanse DoT's P1
     ----dk dots
     if UnitDebuffID("party1", 49194) == nil
-    and _LoS("party1")
     and (
       UnitDebuffID("party1", 55095) --frost fever
       or UnitDebuffID("party1",51735) --ebon plague
@@ -566,13 +571,13 @@ if not funcs then funcs = true
     or UnitDebuffID("party1", 47813) --corruption
     or UnitDebuffID("party1", 49233) --flame shock
     or UnitDebuffID("party1", 48300) --devouring plague
-    and _LoS("party1") then 
+    then 
       _castSpell(4987,"party1")
     end
+
 --Cleanse DoT's P2
     ----dk dots
     if UnitDebuffID("party2", 49194) == nil
-    and _LoS("party2")
     and (
       UnitDebuffID("party2",55095) --frost fever
       or UnitDebuffID("party2",51735) --ebon plague
@@ -586,9 +591,10 @@ if not funcs then funcs = true
     or UnitDebuffID("party2", 47813) --corruption
     or UnitDebuffID("party2", 49233) --flame shock
     or UnitDebuffID("party2", 48300) --devouring plague
-    and _LoS("party2") then 
+    then 
       _castSpell(4987,"party2")
     end
+
 --Cleanse DoT's Player
     ----dk dots
     if UnitDebuffID("player",49194) == nil
@@ -607,9 +613,9 @@ if not funcs then funcs = true
     or UnitDebuffID("player", 48300) --devouring plague
     then _castSpell(4987,"player")
     end
+
 --Judgement of Light
     if UnitExists("target") == 1
-    and _LoS("target")
     and UnitDebuffID("target", 51724) == nil --sap
     and UnitDebuffID("target", 33786) == nil --cyclone
     and UnitDebuffID("target", 12826) == nil --poly
@@ -621,9 +627,9 @@ if not funcs then funcs = true
     then
       _castSpell(20271,"target")
     end
+
 --Shield of Righteousness
     if UnitExists("target") == 1
-    and _LoS("target")
     and UnitPower("player") > 26
     and UnitDebuffID("target", 51724) == nil --sap
     and UnitDebuffID("target", 33786) == nil --cyclone
@@ -635,20 +641,22 @@ if not funcs then funcs = true
     then 
       _castSpell(61411,"target")
     end
+
 --Buff Seal of Light
     if not UnitBuffID("player", 20165)
     and not UnitBuffID("player", 20166)
     and not UnitBuffID("player", 31801) then
       _castSpell(20165)
     end
+
 --Buff Righteous Fury
     if not UnitBuffID("player", 25780) then
       _castSpell(25780)
     end
+
 --Buff Kings
     for _, unit in ipairs(PartyList) do
       if not UnitBuffID(unit, 20217)
-      and _LoS(unit)
       and UnitPower("player")>=5000 then 
         _castSpell(20217, unit)
       end
@@ -691,7 +699,7 @@ if not funcs then funcs = true
       Disable()
     else
       Enable()
-    end	
+    end 
   end
 
   print("Arc Paladin Holy")

@@ -1,28 +1,12 @@
 if not funcs then funcs = true
 
-  PartyList = {
-    "player",
-    "party1",
-    "party2",
-    "playerpet",
-    "partypet1",
-    "partypet2",
-  }
+  PartyUnits = { "player", "party1", "party2" }
 
-  PlayersList = {
-    "player",
-    "party1",
-    "party2",
-  }
+  PartyPetUnits = { "playerpet", "partypet1", "partypet2" }
 
-  EnemyList = {
-    "arena1",
-    "arena2",
-    "arena3",
-    "arenapet1",
-    "arenapet2",
-    "arenapet3",
-  }
+  PartyList = { "player", "party1", "party2", "playerpet", "partypet1", "partypet2" }
+
+  EnemyList = { "arena1", "arena2", "arena3", "arenapet1", "arenapet2", "arenapet3" }
 
   HardCCList = {
     10308, --HoJ
@@ -139,27 +123,6 @@ if not funcs then funcs = true
     end
   end
 
-  function PlayerLowest()
-    if getHp("player") < getHp("party1")
-    and getHp("player") < getHp("party2") then
-      return true
-    end
-  end
-
-  function Party1Lowest()
-    if getHp("party1") < getHp("player")
-    and getHp("party1") < getHp("party2") then
-      return true
-    end
-  end
-
-  function Party2Lowest()
-    if getHp("party2") < getHp("party1")
-    and getHp("party2") < getHp("player") then
-      return true
-    end
-  end
-
   function cdRemains(spellid)
     if select(2,GetSpellCooldown(spellid)) + (select(1,GetSpellCooldown(spellid)) - GetTime()) > 0
     then return select(2,GetSpellCooldown(spellid)) + (select(1,GetSpellCooldown(spellid)) - GetTime())
@@ -186,19 +149,17 @@ if not funcs then funcs = true
   function _castSpell(spellid,tar)
     if UnitCastingInfo("player") == nil
     and UnitChannelInfo("player") == nil
-    and cdRemains(spellid) == 0
-    then
+    and cdRemains(spellid) == 0 
+    and UnitIsDead("player") == nil then
       if tar ~= nil
-      and rangeCheck(spellid,tar) == nil
-      then
+      and rangeCheck(spellid,tar) == nil then
         return false
       elseif tar ~= nil
       and rangeCheck(spellid,tar) == true
-      then
+      and _LoS(tar) then
         CastSpellByID(spellid, tar)
         return true
-      elseif tar == nil
-      then
+      elseif tar == nil then
         CastSpellByID(spellid)
         return true
       else
@@ -274,16 +235,14 @@ if not funcs then funcs = true
       end
     end
 --Dispel HardCC
-    if UnitExists("party1") == 1 
-    and _LoS("party1") then
+    if UnitExists("party1") == 1 then
       for i=1, #HardCCList do
         if UnitDebuffID("party1", HardCCList[i]) then
           _castSpell(988, "party1")
         end
       end
     end
-    if UnitExists("party2") == 1 
-    and _LoS("party2") then
+    if UnitExists("party2") == 1 then
       for i=1, #HardCCList do
         if UnitDebuffID("party2", HardCCList[i]) then
           _castSpell(988, "party2")
@@ -291,16 +250,14 @@ if not funcs then funcs = true
       end
     end
 --Dispel Silence
-    if UnitExists("party1") == 1 
-    and _LoS("party1") then
+    if UnitExists("party1") == 1 then
       for i=1, #SilenceList do
         if UnitDebuffID("party1", SilenceList[i]) then
           _castSpell(988, "party1")
         end
       end
     end
-    if UnitExists("party2") == 1 
-    and _LoS("party2") then
+    if UnitExists("party2") == 1 then
       for i=1, #SilenceList do
         if UnitDebuffID("party2", SilenceList[i]) then
           _castSpell(988, "party2")
@@ -311,8 +268,6 @@ if not funcs then funcs = true
     for _, unit in ipairs(PartyList) do
       if UnitExists("player") == 1 
       and getHp(unit) > 90 then
-        if cdRemains(988) == 0
-        and rangeCheck(988, "player") == true then
           for i=1, #RootList do
             if UnitDebuffID("player", RootList[i]) then
               _castSpell(988, "player")
@@ -320,14 +275,10 @@ if not funcs then funcs = true
           end
         end
       end
-    end	
 --Dispel Root P1
     for _, unit in ipairs(PartyList) do
       if UnitExists("party1") == 1 
-      and getHp(unit) > 90
-      and _LoS("party1") then
-        if cdRemains(988) == 0
-        and rangeCheck(988, "party1") == true then
+      and getHp(unit) > 90 then
           for i=1, #RootList do
             if UnitDebuffID("party1", RootList[i]) then
               _castSpell(988, "party1")
@@ -335,14 +286,10 @@ if not funcs then funcs = true
           end
         end
       end
-    end
 --Dispel Root P2
     for _, unit in ipairs(PartyList) do
       if UnitExists("party2") == 1 
-      and getHp(unit) > 90
-      and _LoS("party2") then
-        if cdRemains(988) == 0
-        and rangeCheck(988, "party2") == true then
+      and getHp(unit) > 90 then
           for i=1, #RootList do
             if UnitDebuffID("party2", RootList[i]) then
               _castSpell(988, "party2")
@@ -350,7 +297,6 @@ if not funcs then funcs = true
           end
         end
       end
-    end
 --Abolish Disease
     --dk
     for i=1, #DKList do
@@ -376,13 +322,11 @@ if not funcs then funcs = true
       end
     end
 --SWPain Grounding
-    if UnitBuffID("target", 8178) ~= nil 
-    and _LoS("target") then
+    if UnitBuffID("target", 8178) ~= nil then
       _castSpell(48125, "target")
     end
 --Mind Soothe Reflect
-    if UnitBuffID("target", 23920) ~= nil 
-    and _LoS("target") then
+    if UnitBuffID("target", 23920) ~= nil then
       _castSpell(453, "target")
     end
 --Buff Inner Fire

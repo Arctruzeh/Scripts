@@ -1,5 +1,13 @@
 if not funcs then funcs = true
 
+  PartyUnits = { "player", "party1", "party2" }
+
+  PartyPetUnits = { "playerpet", "partypet1", "partypet2" }
+
+  PartyList = { "player", "party1", "party2", "playerpet", "partypet1", "partypet2" }
+
+  EnemyList = { "arena1", "arena2", "arena3", "arenapet1", "arenapet2", "arenapet3" }
+
   HealList = {
     49276, --Lesser Healing Wave : Rank 9
     49273, --Healing Wave
@@ -33,33 +41,6 @@ if not funcs then funcs = true
     50796, --Chaos Bolt
     47843, --Unstable Affliction
     60043, --Lava Burst
-  }
-
-  PartyList = {
-	"player",
-	"party1",
-	"party2",
-	"party3",
-	"party4",
-	"party5",
-	"playerpet",
-	"partypet1",
-    "partypet2",
-	"partypet3",
-    "partypet4",
-  }
-
-  EnemyList = {
-    "arena1",
-    "arena2",
-    "arena3",
-	"arena4",
-	"arena5",
-    "arenapet1",
-    "arenapet2",
-    "arenapet3",
-    "arenapet4",
-    "arenapet5",
   }
 
   function UnitBuffID(unit, id)    
@@ -103,20 +84,17 @@ if not funcs then funcs = true
   function _castSpell(spellid,tar)
     if UnitCastingInfo("player") == nil
     and UnitChannelInfo("player") == nil
-    and not UnitIsDeadOrGhost("player")
-    and cdRemains(spellid) == 0
-    then
+    and cdRemains(spellid) == 0 
+    and UnitIsDead("player") == nil then
       if tar ~= nil
-      and rangeCheck(spellid,tar) == nil
-      then
+      and rangeCheck(spellid,tar) == nil then
         return false
       elseif tar ~= nil
       and rangeCheck(spellid,tar) == true
-      then
+      and _LoS(tar) then
         CastSpellByID(spellid, tar)
         return true
-      elseif tar == nil
-      then
+      elseif tar == nil then
         CastSpellByID(spellid)
         return true
       else
@@ -143,11 +121,11 @@ if not funcs then funcs = true
   function Rotation()
 
 --Iceblock Low HP
-    if getHp("player") < 20 
-    and cdRemains(45438) == 0 then 
+    if getHp("player") < 20 then 
       SpellStopCasting()
       _castSpell(45438)
     end
+
 --Blink Stun
     if UnitDebuffID("player", 10308) ~= nil --hoj
     or UnitDebuffID("player", 20252) ~= nil --intercept
@@ -155,6 +133,7 @@ if not funcs then funcs = true
     then 
       _castSpell(1953)
     end
+
 --Fake SWD	
     local Polymorphs = {
       12826, --Sheep
@@ -190,6 +169,7 @@ if not funcs then funcs = true
         end
       end
     end
+
 --CS Channel 
     for _, unit in ipairs(EnemyList) do
       if ValidUnit(unit, "enemy") then
@@ -203,12 +183,12 @@ if not funcs then funcs = true
           or UnitChannelInfo(unit) == ("Seduction") )
         and not UnitBuffID(unit, 54748) --Burning Determination
         and not UnitBuffID(unit, 31821) --Aura Mastery
-        and _LoS(unit)
         then
           _castSpell(2139, unit)
         end
       end
     end
+
 --CS CC
     for _, unit in ipairs(EnemyList) do
       if ValidUnit(unit, "enemy") then
@@ -218,8 +198,7 @@ if not funcs then funcs = true
           local spellName, _, _, _, startCast, endCast, _, _, canInterrupt = UnitCastingInfo(unit) 
           for i=1, #CCList do
             if GetSpellInfo(CCList[i]) == spellName 
-            and canInterrupt == false 
-            and _LoS(unit) then
+            and canInterrupt == false then
               if ((endCast/1000) - GetTime()) < .5 then
                 CastSpellByID(2139, unit)
               end
@@ -228,6 +207,7 @@ if not funcs then funcs = true
         end
       end
     end
+
 --CS Heal 
     for _, unit in ipairs(EnemyList) do
       if ValidUnit(unit, "enemy") then
@@ -237,8 +217,7 @@ if not funcs then funcs = true
           for i=1, #HealList do
             if GetSpellInfo(HealList[i]) == spellName 
             and canInterrupt == false then
-              if ((endCast/1000) - GetTime()) < .6 
-              and _LoS(unit) then
+              if ((endCast/1000) - GetTime()) < .6 then
                 _castSpell(2139, unit)
               end
             end
@@ -246,16 +225,19 @@ if not funcs then funcs = true
         end
       end
     end
+
 --Lance Reflect
     if UnitBuffID("target", 23920) ~= nil then
       SpellStopCasting()
       _castSpell(42914, "target")
     end
+
 --Lance Grounding
     if UnitBuffID("target", 8178) ~= nil then
       SpellStopCasting()
       _castSpell(42914, "target")
     end
+
 --Remove Curse
     if UnitExists("party1") == 1
     and UnitDebuffID("party1", 51514) then 
@@ -265,6 +247,7 @@ if not funcs then funcs = true
     and UnitDebuffID("party2", 51514) then 
       _castSpell(475,"party2")
     end
+
 --Get Combat vs Rogue
     if (UnitClass("arena1") == "Rogue"
       or UnitClass("arena2") == "Rogue"
@@ -284,6 +267,7 @@ if not funcs then funcs = true
     and not UnitIsDeadOrGhost("player") then 
       _castSpell(130, "party2")
     end
+
 --Buff Int
     for _, unit in ipairs(PartyList) do
       if not UnitBuffID(unit, 42995)
@@ -291,6 +275,7 @@ if not funcs then funcs = true
         _castSpell(42995, unit)
       end
     end
+
 --Buff R1 Amp Magic
     for _, unit in ipairs(PartyList) do
       if not UnitBuffID(unit, 1008)
@@ -298,6 +283,7 @@ if not funcs then funcs = true
         _castSpell(1008, unit)
       end
     end
+
 --Buff Armor
     if UnitBuffID("player", 32727) --prep
     and UnitBuffID("player", 43024) == nil --mage
