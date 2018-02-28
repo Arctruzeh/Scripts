@@ -297,22 +297,16 @@ if not funcs then funcs = true
 
   -- Enable the rotation
   function Disable()
-    enabled = false
-    print("Disabled")
+    enabled = false print("Disabled")
   end
 
-  -- Disable the rotation
+  -- Disable the rotation     
   function Enable()
-    enabled = true
-    print("Enabled")
+    enabled = true print("Enabled")
   end
 
   function Toggle()
-    if enabled then
-      Disable()
-    else
-      Enable()
-    end	
+    if enabled then Disable() else Enable() end 
   end
 
   print("Arc Sham Ele 3v3")
@@ -320,8 +314,4 @@ if not funcs then funcs = true
 end
 
 -- Script
-if enabled then
-  Disable()
-else
-  Enable()
-end
+if enabled then Disable() else Enable() end
