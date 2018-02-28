@@ -1,0 +1,5 @@
+## Title: Arc Pala Holy
+## Author: Arc https://github.com/Arctruzeh
+## Interface: 30300
+
+main.lua

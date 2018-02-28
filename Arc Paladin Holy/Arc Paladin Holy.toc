@@ -1,5 +1,0 @@
-## Title: Arc Paladin Holy
-## Author: Arc
-## Interface: 30300
-
-main.lua
