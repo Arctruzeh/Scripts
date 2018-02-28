@@ -355,7 +355,7 @@ if not funcs then funcs = true
 --Buff
     local PlayerMana = 100 * UnitPower("player") / UnitPowerMax("player")
 
-    If not UnitBuffID("player", 20217) and PlayerMana > 50 and IsMounted() == nil then
+    if PlayerMana > 50 and IsMounted() == nil then
       --Buff Righteous Fury
       if not UnitBuffID("player", 25780) then _castSpell(25780) end
       --Buff Seal of Righteousness
