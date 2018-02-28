@@ -109,20 +109,17 @@ if not funcs then funcs = true
   function _castSpell(spellid,tar)
     if UnitCastingInfo("player") == nil
     and UnitChannelInfo("player") == nil
-    and cdRemains(spellid) == 0
-    and UnitIsDead("player") == nil
-    then
+    and cdRemains(spellid) == 0 
+    and UnitIsDead("player") == nil then
       if tar ~= nil
-      and rangeCheck(spellid,tar) == nil
-      then
+      and rangeCheck(spellid,tar) == nil then
         return false
       elseif tar ~= nil
       and rangeCheck(spellid,tar) == true
-      then
+      and _LoS(tar) then
         CastSpellByID(spellid, tar)
         return true
-      elseif tar == nil
-      then
+      elseif tar == nil then
         CastSpellByID(spellid)
         return true
       else
@@ -152,6 +149,12 @@ if not funcs then funcs = true
     if getHp("player") <= 20 then
       _castSpell(642)
     end
+--Every Man for Himself
+    for i=1, #TrinketList do
+      if UnitDebuffID("player", TrinketList[i]) then
+        _castSpell(59752)
+      end
+    end
 --Divine Protection
     if cdRemains(642) > 10
     and getHp("player") <= 10 
@@ -164,19 +167,9 @@ if not funcs then funcs = true
     or UnitDebuffID("player", 30283) --Shadowfury
     or UnitDebuffID("player", 8643) --kidney
     then _castSpell(1044,"player")
-      return true
     end
---Trinket CC
-    if UnitExists("player") == 1 then
-        for i=1, #TrinketList do
-          if UnitDebuffID("player", TrinketList[i]) then
-            _castSpell(59752)
-          end
-        end
-      end
 --Hammer of Wrath Target
     if UnitExists("target") == 1
-    and _LoS("target")
     and UnitPower("player") > 527
     and UnitBuffID("target", 45438) == nil --ice block
     and UnitBuffID("target", 642) == nil --bubble
@@ -187,8 +180,7 @@ if not funcs then funcs = true
     end
 --Mana Divine Plea
     local PlayerMana = 100 * UnitPower("player") / UnitPowerMax("player")
-    if cdRemains(54428) == 0
-    and PlayerMana <= 60  then
+    if PlayerMana <= 60  then
       _castSpell(54428)
     end
 --Repentance target
@@ -219,7 +211,6 @@ if not funcs then funcs = true
     and UnitBuffID("target", 48707) == nil --AMS
     and UnitBuffID("target", 48792) == nil --IBF
     and UnitBuffID("target", 31224) == nil --cloak of shadows
-    and _LoS("target")
     and UnitPower("player")>=550 then
       _castSpell(20066, "target")
     end
@@ -251,8 +242,7 @@ if not funcs then funcs = true
     and UnitBuffID("target", 48707) == nil --AMS
     and UnitBuffID("target", 48792) == nil --IBF
     and UnitBuffID("target", 31224) == nil --cloak of shadows
-    and UnitPower("player")>=314 
-    and _LoS("target") then
+    and UnitPower("player")>=314 then
       _castSpell(10308, "target")
     end
 --Insta Heal Player
@@ -262,7 +252,6 @@ if not funcs then funcs = true
     end
 --AoW Exorcism
     if UnitExists("target") == 1
-    and _LoS("target")
     and UnitBuffID("player", 59578) 
     and UnitPower("player") > 520
     and UnitDebuffID("target", 51724) == nil --sap
@@ -280,7 +269,6 @@ if not funcs then funcs = true
     local PlayerMana = 100 * UnitPower("player") / UnitPowerMax("player")
     if UnitExists("target") == 1
     and PlayerMana <= 50 
-    and _LoS("target")
     and UnitPower("player") > 197
     and UnitDebuffID("target", 51724) == nil --sap
     and UnitDebuffID("target", 33786) == nil --cyclone
@@ -296,7 +284,6 @@ if not funcs then funcs = true
     end
 --Judgement of Light
     if UnitExists("target") == 1
-    and _LoS("target")
     and getHp("player") <= 75 
     and UnitPower("player") > 197
     and UnitDebuffID("target", 51724) == nil --sap
@@ -313,7 +300,6 @@ if not funcs then funcs = true
     end
 --Judgement of Justice
     if UnitExists("target") == 1
-    and _LoS("target")
     and UnitPower("player") > 197
     and UnitDebuffID("target", 51724) == nil --sap
     and UnitDebuffID("target", 33786) == nil --cyclone
@@ -329,7 +315,6 @@ if not funcs then funcs = true
     end
 --Crusader Strike
     if UnitExists("target") == 1
-    and _LoS("target")
     and UnitPower("player") > 197
     and UnitDebuffID("target", 51724) == nil --sap
     and UnitDebuffID("target", 33786) == nil --cyclone
@@ -342,6 +327,7 @@ if not funcs then funcs = true
     end
 --Divine Storm
     if UnitExists("target") == 1
+    and _LoS("target")
     and GetDistanceBetweenObjects ("player", "target") < 9
     and UnitPower("player") > 700
     and UnitDebuffID("target", 51724) == nil --sap
@@ -355,46 +341,27 @@ if not funcs then funcs = true
     end
 --Sacred BG Player
     if not UnitBuffID("player", 53601) 
-	and IsMounted() == nil then
+    and IsMounted() == nil then
       _castSpell(53601, "player")
     end
 --Cleanse Root Player
-    if UnitExists("player") == 1 then
-      if cdRemains(4987) == 0
-      and rangeCheck(4987, "player") == true then
-        for i=1, #RootList do
-          if UnitDebuffID("player", RootList[i]) then
-            _castSpell(4987, "player")
-          end
-        end
-      end
+    for i=1, #RootList do
+      if UnitDebuffID("player", RootList[i]) then _castSpell(4987, "player") end
     end
 --Cleanse Slow Player
-    if UnitExists("player") == 1 then
-      if cdRemains(4987) == 0
-      and rangeCheck(4987, "player") == true then
-        for i=1, #SlowList do
-          if UnitDebuffID("player", SlowList[i]) then
-            _castSpell(4987, "player")
-          end
-        end
-      end
+    for i=1, #SlowList do
+      if UnitDebuffID("player", SlowList[i]) then _castSpell(4987, "player") end
     end
---Buff Righteous Fury
-    if not UnitBuffID("player", 25780) 
-	and IsMounted() == nil then
-      _castSpell(25780)
-    end
---Buff Seal of Righteousness
-    if not UnitBuffID("player", 21084) 
-	and IsMounted() == nil then
-      _castSpell(21084)
-    end
---Buff Kings
-    if not UnitBuffID("player", 20217)
-    and UnitPower("player")>=5000 
-	and IsMounted() == nil then 
-      _castSpell(20217, "player")
+--Buff
+    local PlayerMana = 100 * UnitPower("player") / UnitPowerMax("player")
+
+    If not UnitBuffID("player", 20217) and PlayerMana > 50 and IsMounted() == nil then
+      --Buff Righteous Fury
+      if not UnitBuffID("player", 25780) then _castSpell(25780) end
+      --Buff Seal of Righteousness
+      if not UnitBuffID("player", 21084) then _castSpell(21084) end
+      --Buff Kings
+      if not UnitBuffID("player", 20217) then _castSpell(20217) end
     end
 
   end
@@ -419,24 +386,21 @@ if not funcs then funcs = true
 
   -- Enable the rotation
   function Disable()
-    enabled = false
-    print("Disabled")
+    enabled = false print("Disabled")
   end
 
-  -- Disable the rotation
+  -- Disable the rotation     
   function Enable()
-    enabled = true
-    print("Enabled")
+    enabled = true print("Enabled")
   end
 
   function Toggle()
-    if enabled then
-      Disable()
-    else
-      Enable()
-    end	
+    if enabled then Disable() else Enable() end 
   end
 
-  print("AJ Pala Ret BG")
+  print("Arc Pala Ret BG")
 
 end
+
+-- Script
+if enabled then Disable() else Enable() end
