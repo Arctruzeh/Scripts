@@ -144,7 +144,7 @@ if not funcs then funcs = true
         return false
       elseif tar ~= nil
       and rangeCheck(spellid,tar) == true
-	    and _LoS(tar) then
+      and _LoS(tar) then
         CastSpellByID(spellid, tar)
         return true
       elseif tar == nil then
@@ -166,6 +166,18 @@ if not funcs then funcs = true
   -- Return if a given unit exists, isn't dead
   function ValidUnit(unit, unitType) 
     return UnitExists(unit)==1 and ValidUnitType(unitType, unit)
+  end
+
+--Pet Kill Cleansing
+  function KillCleansing()
+    for i = 1, ObjectCount() do
+      local object = ObjectWithIndex(i)
+      if string.find(select(1, ObjectName(object)), "Cleansing Totem") ~= nil  
+      and UnitIsEnemy(object, "player") 
+      and UnitCanAttack("player", object) == 1 then
+        RunMacroText("/petattack [@"..object.."]")
+      end
+    end
   end
 
   ------------------
@@ -220,7 +232,7 @@ if not funcs then funcs = true
         end
       end
     end
-	
+
 --Silence Channel
     for _, unit in ipairs(EnemyList) do
       if ValidUnit(unit, "enemy") then 
@@ -239,7 +251,7 @@ if not funcs then funcs = true
         end
       end
     end
-	
+
 --Trap on Scatter
     for _, unit in ipairs(EnemyList) do
       local X,Y,Z = ObjectPosition(unit)
@@ -330,13 +342,13 @@ if not funcs then funcs = true
 --Master's Call
     for _, unit in ipairs(PartyList) do
       if UnitExists(unit) == 1 then
-          for i=1, #RootList do
-            if UnitDebuffID(unit, RootList[i]) then
-              _castSpell(53271, unit)
-            end
+        for i=1, #RootList do
+          if UnitDebuffID(unit, RootList[i]) then
+            _castSpell(53271, unit)
           end
         end
       end
+    end
 
 --Pet Last Stand
     if UnitExists("playerpet") == 1
@@ -363,12 +375,6 @@ if not funcs then funcs = true
     if PlayerMana > 90
     and not UnitBuffID("player", 61847) then
       _castSpell(61847)
-    end
-
---Pet Attack Totems
-    if UnitExists("mouseover")
-    and UnitCreatureType("mouseover") == "Totem" then 
-      PetAttack("mouseover")
     end
 
 --Raptor Strike
@@ -486,17 +492,6 @@ if not funcs then funcs = true
     and UnitBuffID("target", 19263) == nil --deterrance
     then 
       _castSpell(49050,"target")
-    end
-
---Pet Kill Cleansing
-    for i = 1, ObjectCount() do
-      local object = ObjectWithIndex(i)
-      if string.find(select(1, ObjectName(object)), "Cleansing Totem") ~= nil  
-      and UnitBuffID("target", 8170)
-      and UnitIsEnemy(object, "player") 
-      and UnitCanAttack("player", object) == 1 then
-        RunMacroText("/petattack [@"..object.."]")
-      end
     end
 
 --Serpent Sting
@@ -640,9 +635,16 @@ if not funcs then funcs = true
       Disable()
     else
       Enable()
-    end	
+    end 
   end
 
   print("Arc Hunter MM 3v3")
 
+end
+
+-- Script
+if enabled then
+  Disable()
+else
+  Enable()
 end
