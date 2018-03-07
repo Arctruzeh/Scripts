@@ -158,6 +158,16 @@ if not funcs then funcs = true
     and UnitCreatureType("target") == "Undead" then 
       _castSpell(10326, "target")
     end
+--Turn Evil Gargoyle
+for i = 1, ObjectCount() do
+  local object = ObjectWithIndex(i)
+  if string.find(select(1, ObjectName(object)), "Ebon Gargoyle") ~= nil  
+  and UnitIsEnemy(object, "player") 
+  and not UnitDebuffID(object, 10326)
+  and UnitCanAttack("player", object) == 1 then
+    _castSpell(10326, object)
+  end
+end
 --Hammer of Wrath Target
     if UnitExists("target") == 1
     and UnitPower("player") > 527
@@ -225,7 +235,8 @@ if not funcs then funcs = true
     end
 --Judgement of Light
     if UnitExists("target") == 1
-    and getHp("player") <= 75 
+    and GetDistanceBetweenObjects ("player", "target") < 6
+    --and getHp("player") <= 80 
     and UnitPower("player") > 197
     and UnitBuffID("target", 45438) == nil --ice block
     and UnitBuffID("target", 642) == nil --bubble

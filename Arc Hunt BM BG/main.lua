@@ -16,11 +16,31 @@ if not funcs then funcs = true
     61305, --Black Cat
     28272, --Pig
     33786, --Cyclone
-    53308, --Entangline Roots
     18658, --Hibernate
     6215, --Fear
     17928, --Howl of Terror
     605, --Mind Control
+    33786, --clone
+    49803, --pounce
+    8983, --bash
+    51724, --sap
+    2094, --blind
+    1833, --cheap shot
+    8643, --kidney
+    51722, --dismantle
+    10308, --hoj
+    20066, --repentance
+    47481, --gnaw
+    7922, --charge
+    20253, --intercept
+    12809, --concussion blow
+    46968, --shockwave
+    676, --disarm
+    19503, --scatter
+    60210, --freezing arrow effect
+    14309, --freezing trap effect
+    64346, --fire mage disarm
+    42950, --dragon's breath
   }
 
   RootList = {
@@ -33,30 +53,25 @@ if not funcs then funcs = true
     53308, --entangling roots
   }
 
-  HealList = {
+  CastList = {
+    --Shaman
     49276, --Lesser Healing Wave : Rank 9
     49273, --Healing Wave
+    51514, --Hex
+    --Paladin
     48785, --Flash of Light
     48782, --Holy Light
+    --Priest
     48071, --Flash Heal
     48120, --Binding Heal
+    605, --Mind Control
+    --Druid
     48443, --Regrowth
     50464, --Nourish
     48378, --Healing Touch
-  }
-
-  CCList = {
-    51514, --Hex
-    12826, --Sheep
-    28271, --Turtle
-    61721, --Rabbit
-    61305, --Black Cat
-    28272, --Pig
     33786, --Cyclone
-    53308, --Entangline Roots
     18658, --Hibernate
-    6215, --Fear
-    17928, --Howl of Terror
+    53308, --Entangline Roots
   }
 
   function UnitBuffID(unit, id)    
@@ -109,20 +124,81 @@ if not funcs then funcs = true
     end
   end
 
+  --[[function WillDC()
+    for i=1, #CCList do
+      if UnitBuffID("player", 19263) --deterrance
+      or UnitDebuffID("player", CCList[i]) then
+        return true
+      else
+        return false
+      end
+    end
+  end]]
+
+  function WillDC()
+    if UnitBuffID("player", 19263) --deterrance
+    or UnitBuffID("player", 10278) --HoP
+    --mage
+    or UnitDebuffID("player", 51514) --Hex
+    or UnitDebuffID("player", 12826) --Sheep
+    or UnitDebuffID("player", 28271) --Turtle
+    or UnitDebuffID("player", 61721) --Rabbit
+    or UnitDebuffID("player", 61305) --Black Cat
+    or UnitDebuffID("player", 28272) --Pig
+    or UnitDebuffID("player", 64346) --fire mage disarm
+    or UnitDebuffID("player", 42950) --dragon's breath
+    or UnitDebuffID("player", 44572) --deep freeze
+    --druid
+    or UnitDebuffID("player", 33786) --Cyclone
+    or UnitDebuffID("player", 18658) --Hibernate
+    or UnitDebuffID("player", 49803) --pounce
+    or UnitDebuffID("player", 8983) --bash
+    --warlock
+    or UnitDebuffID("player", 6215) --Fear
+    or UnitDebuffID("player", 17928) --Howl of Terror
+    or UnitDebuffID("player", 6358) --Seduction
+    or UnitDebuffID("player", 47847) --Shadowfury
+    or UnitDebuffID("player", 47860) --Death Coil
+    --priest
+    or UnitDebuffID("player", 605) --Mind Control
+    or UnitDebuffID("player", 10890) --Psychic Scream
+    or UnitDebuffID("player", 64044) --Psychic Horror
+    --rogue
+    or UnitDebuffID("player", 51724) --sap
+    or UnitDebuffID("player", 2094) --blind
+    or UnitDebuffID("player", 1833) --cheap shot
+    or UnitDebuffID("player", 8643) --kidney
+    or UnitDebuffID("player", 51722) --dismantle
+    or UnitDebuffID("player", 1776) --Gouge
+    --paladin
+    or UnitDebuffID("player", 10308) --hoj
+    or UnitDebuffID("player", 20066) --repentance
+    --dk
+    or UnitDebuffID("player", 47481) --gnaw
+    or UnitDebuffID("player", 51209) --Hungering Cold
+    --shaman
+    or UnitDebuffID("player", 51514) --Hex
+    --warrior
+    or UnitDebuffID("player", 7922) --charge
+    or UnitDebuffID("player", 20253) --intercept
+    or UnitDebuffID("player", 12809) --concussion blow
+    or UnitDebuffID("player", 46968) --shockwave
+    or UnitDebuffID("player", 676) --disarm
+    --hunter
+    or UnitDebuffID("player", 19503) --scatter
+    or UnitDebuffID("player", 60210) --freezing arrow effect
+    or UnitDebuffID("player", 14309) --freezing trap effect
+    then
+      return true
+    else
+      return false
+    end
+  end
+
   function _castSpell(spellid,tar)
     if UnitCastingInfo("player") == nil
     and UnitChannelInfo("player") == nil
     and cdRemains(spellid) == 0 
-    and not UnitBuffID("player", 19263) --deter
-    and not UnitDebuffID("player", 33786) --clone
-    and not UnitDebuffID("player", 49803) --pounce
-    and not UnitDebuffID("player", 8983) --bash
-    and not UnitDebuffID("player", 1833) --cheap shot
-    and not UnitDebuffID("player", 8643) --kidney
-    and not UnitDebuffID("player", 10308) --hoj
-    and not UnitDebuffID("player", 47481) --gnaw
-    and not UnitDebuffID("player", 11578) --charge
-    and not UnitDebuffID("player", 20252) --intercept
     and UnitIsDead("player") == nil then
       if tar ~= nil
       and rangeCheck(spellid,tar) == nil then
@@ -139,7 +215,7 @@ if not funcs then funcs = true
         return false
       end
     end
-  end 
+  end
 
   -- Return true if a given type is checked
   function ValidUnitType(unitType, unit)
@@ -178,183 +254,76 @@ if not funcs then funcs = true
   --ROTATION START--
   ------------------
   function Rotation()
---Lowest HP Party Member
-    local lowest = nil
-    for i=1, #PartyUnits do
-      if UnitExists(PartyUnits[i])
-      and (lowest == nil or getHp(PartyUnits[i]) < getHp(lowest)) then
-        lowest = PartyUnits[i]  
-      end
-    end
+
+--freezing arrow focus
+if UnitExists("focus") == 1 
+and GetKeyState(0xC0) == true then --tilde ~
+  local X,Y,Z = ObjectPosition("focus")
+  _castSpell(60192)
+  if SpellIsTargeting() then
+    ClickPosition(X, Y, Z)
+  end
+end
 
 --Kill Shot
-    for _, unit in ipairs(EnemyList) do
-      if ValidUnit(unit, "enemy") then
-        if UnitDebuffID(unit, 51724) == nil --sap
-        and UnitDebuffID(unit, 33786) == nil --cyclone
-        and UnitDebuffID(unit, 12826) == nil --poly
-        and UnitBuffID(unit, 45438) == nil --ice block
-        and UnitBuffID(unit, 642) == nil --bubble
-        and UnitBuffID(unit, 19263) == nil --deterrance
-        and getHp(unit) <= 20 then
-          _castSpell(61006, unit)
-        end
-      end
-    end
-
---Roar of Sacrifice
-    if getHp(lowest) < 40 then _castSpell(53480, lowest) end
-
---Silence CC
-    for _, unit in ipairs(EnemyList) do
-      if ValidUnit(unit, "enemy") then
-        if not UnitBuffID(unit, 54748) --Burning Determination
-        and not UnitBuffID(unit, 31821) --Aura Mastery
-        then
-          local spellName, _, _, _, startCast, endCast, _, _, canInterrupt = UnitCastingInfo(unit) 
-          for i=1, #CCList do
-            if GetSpellInfo(CCList[i]) == spellName 
-            and canInterrupt == false then
-              if ((endCast/1000) - GetTime()) < .5 then
-                SpellStopCasting()
-                _castSpell(34490, unit)
-              end
-            end
+      for _, unit in ipairs(EnemyList) do
+        if ValidUnit(unit, "enemy") then
+          if UnitDebuffID(unit, 51724) == nil --sap
+          and UnitDebuffID(unit, 33786) == nil --cyclone
+          and UnitDebuffID(unit, 12826) == nil --poly
+          and UnitBuffID(unit, 45438) == nil --ice block
+          and UnitBuffID(unit, 642) == nil --bubble
+          and UnitBuffID(unit, 19263) == nil --deterrance
+          and getHp(unit) <= 20 then
+            _castSpell(61006, unit)
           end
         end
       end
-    end
-
---Silence Channel
-    for _, unit in ipairs(EnemyList) do
-      if ValidUnit(unit, "enemy") then 
-        if ( UnitChannelInfo(unit) == ("Penance")
-          or UnitChannelInfo(unit) == ("Divine Hymn") 
-          or UnitChannelInfo(unit) == ("Hymn of Hope") 
-          or UnitChannelInfo(unit) == ("Mind Control") 
-          or ( UnitBuffID(unit, 31583) --Arcane Empowerment
-            and UnitChannelInfo(unit) == ("Arcane Missiles") )
-          or UnitChannelInfo(unit) == ("Evocation")
-          or UnitChannelInfo(unit) == ("Seduction") )
-        and not UnitBuffID(unit, 54748) --Burning Determination
-        and not UnitBuffID(unit, 31821) --Aura Mastery
-        then
-          _castSpell(34490, unit)
-        end
-      end
-    end
-
---Trap on Scatter
-    for _, unit in ipairs(EnemyList) do
-      local X,Y,Z = ObjectPosition(unit)
-      if ( UnitDebuffID(unit, 19503) or UnitDebuffID(unit, 10308) )
-      and UnitDebuffID(unit, 49001) == nil then
-        _castSpell(60192)
-        if SpellIsTargeting() then
-          ClickPosition(X, Y, Z)
-        end
-      end
-    end
-
---Scatter Focus
-    if UnitDebuffID("focus", 10308) == nil --hoj
-    and UnitDebuffID("focus", 20066) == nil --repentance
-    and UnitDebuffID("focus", 44572) == nil --deep freeze
-    and UnitDebuffID("focus", 30283) == nil --shadowfury
-    and UnitDebuffID("focus", 15487) == nil --silence
-    and UnitDebuffID("focus", 12826) == nil --polymorph
-    and UnitDebuffID("focus", 47476) == nil --strangulate
-    and UnitDebuffID("focus", 6215) == nil --fear
-    and UnitDebuffID("focus", 10890) == nil --psychic scream
-    and UnitDebuffID("focus", 6358) == nil --seduction
-    and UnitDebuffID("focus", 2139) == nil --counter spell
-    and UnitDebuffID("focus", 17928) == nil --howl of terror
-    and UnitDebuffID("focus", 60210) == nil --freezing arrow
-    and UnitDebuffID("focus", 14309) == nil --freezing trap
-    and UnitDebuffID("focus", 51724) == nil --sap
-    and UnitDebuffID("focus", 2094) == nil --blind
-    and UnitDebuffID("focus", 1776) == nil --gouge
-    and UnitDebuffID("focus", 1833) == nil --cheapshot
-    and UnitDebuffID("focus", 8643) == nil --kidney
-    and UnitDebuffID("focus", 51514) == nil --hex
-    and UnitDebuffID("focus", 33786) == nil --cyclone
-    and UnitDebuffID("focus", 8983) == nil --bear stun
-    and UnitDebuffID("focus", 5246) == nil --intimidating shout
-    and UnitBuffID("focus", 642) == nil --divine shield
-    and UnitBuffID("focus", 10278) == nil --HoP
-    and UnitBuffID("focus", 8178) == nil --grounding
-    and UnitPower("player")>= 403 then
-      _castSpell(19503, "focus")
-    end
-
---Scatter Heal
-    for _, unit in ipairs(EnemyList) do
-      if ValidUnit(unit, "enemy") then
-        local spellName, _, _, _, startCast, endCast, _, _, canInterrupt = UnitCastingInfo(unit) 
-        for i=1, #HealList do
-          if GetSpellInfo(HealList[i]) == spellName 
-          and canInterrupt == false then
-            if ((endCast/1000) - GetTime()) < .9 then
-              SpellStopCasting()
-              _castSpell(19503, unit)
-            end
-          end
-        end
-      end
-    end
-
---Silence Heal
-    for _, unit in ipairs(EnemyList) do
-      if ValidUnit(unit, "enemy") then
-        if not UnitBuffID(unit, 54748) --Burning Determination
-        and not UnitBuffID(unit, 31821) --Aura Mastery
-        then
-          local spellName, _, _, _, startCast, endCast, _, _, canInterrupt = UnitCastingInfo(unit) 
-          for i=1, #HealList do
-            if GetSpellInfo(HealList[i]) == spellName 
-            and cdRemains(19503) > 2
-            and canInterrupt == false then
-              if ((endCast/1000) - GetTime()) < .5 then
-                SpellStopCasting()
-                _castSpell(34490, unit)
-              end
-            end
-          end
-        end
-      end
-    end
-
---Readiness
-    if cdRemains(19263) ~= 0 and cdRemains(53271) ~= 0 and cdRemains(781) ~= 0 then _castSpell(23989) end
 
 --Master's Call
-    for _, unit in ipairs(PartyList) do
-      if UnitExists(unit) == 1 then
-        for i=1, #RootList do
-          if UnitDebuffID(unit, RootList[i]) then
-            _castSpell(53271, unit)
+      for _, unit in ipairs(PartyList) do
+        if UnitExists(unit) == 1 then
+          for i=1, #RootList do
+            if UnitDebuffID(unit, RootList[i]) then
+              _castSpell(53271, unit)
+            end
           end
         end
       end
-    end
-
---Pet Last Stand
-    if UnitExists("playerpet") and not UnitBuffID("player", 32727) and getHp("playerpet") < 50 then _castSpell(53478) end
 
 --Mend Pet
-    if UnitExists("playerpet")
-    and not UnitBuffID("playerpet", 48990)    
-    and getHp("playerpet") < 70
-    and not UnitIsDeadOrGhost("playerpet") then 
-      _castSpell(48990)
-    end
+      if UnitExists("playerpet")
+      and not UnitBuffID("playerpet", 48990)    
+      and getHp("playerpet") < 80
+      and not UnitIsDeadOrGhost("playerpet") then 
+        _castSpell(48990)
+      end
 
 --Hunter's Mark on Rogue
-    for _, unit in ipairs(EnemyList) do
-      if ValidUnit(unit, "enemy")
-      and UnitClass(unit) == "Rogue"
-      and not UnitDebuffID(unit, 53338) then
-        _castSpell(53338, unit)
+      for _, unit in ipairs(EnemyList) do
+        if ValidUnit(unit, "enemy")
+        and UnitClass(unit) == "Rogue"
+        and not UnitDebuffID(unit, 53338) then
+          _castSpell(53338, unit)
+        end
+      end
+      
+--Freezing Arrow on Focus Cast/Channel
+      if ValidUnit("focus", "enemy") then 
+        local X,Y,Z = ObjectPosition("focus")
+        local name, _, _, _, _, _, _, _, _ = UnitCastingInfo("focus") 
+        for i=1, #CastList do
+          if ( UnitChannelInfo("focus") == ("Penance")
+            or UnitChannelInfo("focus") == ("Divine Hymn") 
+            or UnitChannelInfo("focus") == ("Hymn of Hope") 
+            or UnitChannelInfo("focus") == ("Mind Control") )
+          or GetSpellInfo(CastList[i]) == name then
+            _castSpell(60192)
+            if SpellIsTargeting() then
+              ClickPosition(X, Y, Z)
+            end
+          end
+        end
       end
 
 --Aspects
@@ -372,6 +341,17 @@ if not funcs then funcs = true
 
 --Wing Clip
       if not UnitDebuffID("target", 2974) then _castSpell(2974,"target") end
+
+--Pet Attack
+      if UnitExists("target")
+      and UnitExists("playerpet")
+      and UnitCanAttack("player", "target")
+      --and WillDC() == false
+      and GetDistanceBetweenObjects ("playerpet", "target") < 36
+      and _LoS("target")
+      and ( GetDistanceBetweenObjects ("playerpet", "target") >= 6 or UnitPower("playerpet") == 100 ) then 
+        RunMacroText("/petattack target")
+      end
 
 --Concussive Shot
       if UnitExists("target")
@@ -447,6 +427,8 @@ if not funcs then funcs = true
 --DMG
       if UnitExists("target")
       and UnitCanAttack("player", "target")
+      and GetDistanceBetweenObjects ("player", "target") < 36
+      and _LoS("target")
       and not UnitDebuffID("target", 51724) --sap
       and not UnitDebuffID("target", 33786) --cyclone
       and not UnitDebuffID("target", 12826) --poly
@@ -458,49 +440,63 @@ if not funcs then funcs = true
 
         if not UnitBuffID("player", 34074) then --Aspect of the Viper
 
+          --Pet
+          if UnitExists("playerpet") and getHp("target") < 80 then
+            if GetDistanceBetweenObjects ("playerpet", "target") > 8
+            and GetDistanceBetweenObjects ("playerpet", "target") < 25 then
+              _castSpell(61685, "target") --Charge
+            end
+            if GetDistanceBetweenObjects ("playerpet", "target") > 5 then
+              _castSpell(61684, "target") --Dash
+            end
+            _castSpell(19574) --Besial Wrath
+            _castSpell(34026) --Kill Command
+            _castSpell(3045) --Rapid Fire
+            _castSpell(20572) --Blood Fury
+            _castSpell(53401) --Rabid
+            _castSpell(53434) --Call of the Wild
+            if not UnitBuffID("target", 48792) then --ibf
+              _castSpell(19577) --Intimidation
+            end
+          end
+
           if not UnitBuffID("target", 31224) --cloak of shadows
           and not UnitBuffID("target", 48707) then --anti magic shell
 
-            if not UnitDebuffID("target", 49001) then --SS
-              _castSpell(49001, "target") --SS
-            end
-
-            if getHp("target") < 70 then
-              _castSpell(20572) --Blood Fury
-              _castSpell(3045) --Rapid Fire
-            end
-
-            if UnitDebuffID("target", 49001) then --SS
-              _castSpell(53209,"target") --Chimera Shot
-            end
-
             _castSpell(49045,"target")--Arcane Shot
 
-            if not UnitDebuffID("target", 53338) and UnitClass("target") ~= "Rogue" then --Hunter's Mark
+            if not UnitDebuffID("target", 49001) then --SS
+              for i = 1, ObjectCount() do
+                local object = ObjectWithIndex(i)
+                if string.find(select(1, ObjectName(object)), "Cleansing Totem") == nil then
+                  _castSpell(49001, "target") --SS
+                end
+              end
+            end
+
+            if not UnitDebuffID("target", 53338) 
+            and UnitClass("arena1") ~= "Rogue"
+            and UnitClass("arena2") ~= "Rogue"
+            and UnitClass("arena3") ~= "Rogue" then --Hunter's Mark
               _castSpell(53338, "target") --Hunter's Mark
             end
 
           end
 
+          _castSpell(49052,"target")--Steady Shot
+
         end
 
-        _castSpell(49052,"target")--Steady Shot
-
       end
-
-    end
-
---Trueshot Aura
-    if not UnitBuffID("player", 19506) then _castSpell(19506) end
 
 --Call Pet Arena
-    if UnitBuffID("player", 32727) then
-      if UnitExists("playerpet") ~= 1 then _castSpell(883) end
-      if UnitExists("playerpet") == 1 then
-        if UnitIsDeadOrGhost("playerpet") then _castSpell(982) end
-        if getHp("playerpet") < 100 and not UnitBuffID("playerpet", 48990) then _castSpell(48990) end
+      if UnitBuffID("player", 32727) then
+        if UnitExists("playerpet") ~= 1 then _castSpell(883) end
+        if UnitExists("playerpet") == 1 then
+          if UnitIsDeadOrGhost("playerpet") then _castSpell(982) end
+          if getHp("playerpet") < 100 and not UnitBuffID("playerpet", 48990) then _castSpell(48990) end
+        end
       end
-    end
 
   end
   ----------------
@@ -508,14 +504,14 @@ if not funcs then funcs = true
   ----------------
 
   rate_counter = 0    
-  ahk_rate = 0.30
+  ahk_rate = 0.10
   enabled = true
 
   frame = CreateFrame("Frame", nil, UIParent)
   frame:Show()    
   frame:SetScript("OnUpdate", function(self, elapsed)        
       rate_counter = rate_counter + elapsed
-      if enabled and rate_counter > ahk_rate then            
+      if enabled and rate_counter > ahk_rate and WillDC() == false then            
         Rotation()            
         rate_counter = 0        
       end    
@@ -536,7 +532,7 @@ if not funcs then funcs = true
     if enabled then Disable() else Enable() end 
   end
 
-  print("Arc Hunter MM 3v3")
+  print("Arc Hunter BM BG")
 
 end
 

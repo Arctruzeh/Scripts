@@ -1,0 +1,2 @@
+make macro:
+ /run KillCleansing()

@@ -327,6 +327,7 @@ if not funcs then funcs = true
     end
 --Divine Storm
     if UnitExists("target") == 1
+    and UnitCanAttack("player", "target")
     and _LoS("target")
     and GetDistanceBetweenObjects ("player", "target") < 9
     and UnitPower("player") > 700

@@ -349,7 +349,6 @@ if not funcs then funcs = true
     for i = 1, ObjectCount() do
       local object = ObjectWithIndex(i)
       if string.find(select(1, ObjectName(object)), "Cleansing Totem") ~= nil  
-      and UnitBuffID("target", 8170)
       and UnitIsEnemy(object, "player") 
       and UnitCanAttack("player", object) == 1 then
         RunMacroText("/petattack [@"..object.."]")

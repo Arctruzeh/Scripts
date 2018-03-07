@@ -1,0 +1,5 @@
+## Title: Arc Hunt BM BG
+## Author: Arc
+## Interface: 30300
+
+main.lua

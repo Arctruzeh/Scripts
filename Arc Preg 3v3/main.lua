@@ -279,6 +279,17 @@ if not funcs then funcs = true
       end
     end
 
+--Turn Evil Gargoyle
+for i = 1, ObjectCount() do
+  local object = ObjectWithIndex(i)
+  if string.find(select(1, ObjectName(object)), "Ebon Gargoyle") ~= nil  
+  and UnitIsEnemy(object, "player") 
+  and not UnitDebuffID(object, 10326)
+  and UnitCanAttack("player", object) == 1 then
+    _castSpell(10326, object)
+  end
+end
+
 --Turn Evil Undead Target
     if UnitExists("target") == 1
     and UnitIsEnemy("player", "target")

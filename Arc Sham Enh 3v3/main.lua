@@ -6,7 +6,9 @@ if not funcs then funcs = true
 
   PartyList = { "player", "party1", "party2", "playerpet", "partypet1", "partypet2" }
 
-  EnemyList = { "arena1", "arena2", "arena3", "arenapet1", "arenapet2", "arenapet3" }
+  EnemyList = { "target", "focus", "arena1", "arena2", "arena3", "arenapet1", "arenapet2", "arenapet3" }
+
+  ChannelList = { "Penance", "Divine Hymn", "Hymn of Hope", "Mind Control", "Evocation", "Seduction", }
 
   HealList = {
     49276, --Lesser Healing Wave : Rank 9
@@ -197,7 +199,8 @@ if not funcs then funcs = true
   function inEBRange()
     for i = 1, ObjectCount() do 
       local object = ObjectWithIndex(i) 
-      if string.find(select(1, ObjectName(object)), "Earthbind Totem") ~= nil then 
+      if string.find(select(1, ObjectName(object)), "Earthbind Totem") ~= nil 
+      and UnitIsFriend("player", object) then 
         if GetDistanceBetweenObjects("player", object) < 12 then
           return true
         else
@@ -271,6 +274,12 @@ if not funcs then funcs = true
     if getHp("player") <= 60 then
       _castSpell(58582)
     end
+--Shamanistic Rage
+    local PlayerMana = 100 * UnitPower("player") / UnitPowerMax("player")
+    if getHp("player") <= 60 
+    or PlayerMana <= 60 then
+      _castSpell(30826)
+    end
 --Gift of Naruu
     if getHp("player") <= 60 then
       _castSpell(59547)
@@ -296,23 +305,32 @@ if not funcs then funcs = true
     and _LoS("target")
     and rangeCheck(17364, "target") == true
     and UnitCanAttack("player","target") ~= nil
-    and getHp("target") < 70 then 
+    and ( getHp("target") < 70 or getHp("player") < 70 ) then 
       _castSpell(51533)
     end
 --Shear CC
     for _, unit in ipairs(EnemyList) do
-      if ValidUnit(unit, "enemy") then
-        if not UnitBuffID(unit, 54748) --Burning Determination
-        and not UnitBuffID(unit, 31821) --Aura Mastery
+      if ValidUnit(unit, "enemy") 
+      and cdRemains(57994) == 0 
+      and _LoS(unit) then
+        if not UnitBuffID(unit, 31821) --Aura Mastery
         then
-          local spellName, _, _, _, startCast, endCast, _, _, canInterrupt = UnitCastingInfo(unit) 
+          local name, subText, text, texture, startTime, endTime, isTradeSkill, castID, notInterruptible = UnitCastingInfo(unit) 
           for i=1, #CCList do
-            if GetSpellInfo(CCList[i]) == spellName 
-            and canInterrupt == false 
-            and _LoS(unit) then
-              if ((endCast/1000) - GetTime()) < .5 then
-                SpellStopCasting()
-                CastSpellByID(57994, unit)
+            if GetSpellInfo(CCList[i]) == name 
+            and notInterruptible == false then
+              local timeSinceStart = (GetTime() * 1000 - startTime) / 1000
+              local castTime = endTime - startTime	
+              local currentPercent = timeSinceStart / castTime * 100000
+              local KickPercent = random(25, 75)
+              if currentPercent >= KickPercent then
+                if UnitIsFacing ("player", unit) ~= true then
+                  FaceDirection (unit, true)
+                end
+                if UnitIsFacing ("player", unit) == true then
+                  SpellStopCasting()
+                  _castSpell(57994, unit)
+                end
               end
             end
           end
@@ -339,38 +357,88 @@ if not funcs then funcs = true
         end
       end
     end
+--Shear DMG if lowesthp < 50
+    for _, unit in ipairs(EnemyList) do
+      if ValidUnit(unit, "enemy") 
+      and cdRemains(57994) == 0 
+      and _LoS(unit) 
+      and getHp(lowest) < 50 then
+        if not UnitBuffID(unit, 31821) --Aura Mastery
+        then
+          local name, subText, text, texture, startTime, endTime, isTradeSkill, castID, notInterruptible = UnitCastingInfo(unit) 
+          for i=1, #DMGList do
+            if GetSpellInfo(DMGList[i]) == name 
+            and notInterruptible == false then
+              local timeSinceStart = (GetTime() * 1000 - startTime) / 1000
+              local castTime = endTime - startTime	
+              local currentPercent = timeSinceStart / castTime * 100000
+              local KickPercent = random(25, 75)
+              if currentPercent >= KickPercent then
+                if UnitIsFacing ("player", unit) ~= true then
+                  FaceDirection (unit, true)
+                end
+                if UnitIsFacing ("player", unit) == true then
+                  SpellStopCasting()
+                  _castSpell(57994, unit)
+                end
+              end
+            end
+          end
+        end
+      end
+    end
 --Shear Channel 
     for _, unit in ipairs(EnemyList) do
-      if ValidUnit(unit, "enemy") then
-        if ( UnitChannelInfo(unit) == ("Penance")
-          or UnitChannelInfo(unit) == ("Divine Hymn") 
-          or UnitChannelInfo(unit) == ("Hymn of Hope") 
-          or UnitChannelInfo(unit) == ("Mind Control") 
+      if ValidUnit(unit, "enemy") 
+      and cdRemains(57994) == 0 
+      and _LoS(unit) 
+      and not UnitBuffID(unit, 54748) --Burning Determination
+      and not UnitBuffID(unit, 31821) then --Aura Mastery
+        local name, subText, text, texture, startTime, endTime, isTradeSkill, notInterruptible = UnitChannelInfo(unit)
+        for i=1, #ChannelList do
+          if UnitChannelInfo(unit) == ChannelList[i] 
           or ( UnitBuffID(unit, 31583) --Arcane Empowerment
-            and UnitChannelInfo(unit) == ("Arcane Missiles") )
-          or UnitChannelInfo(unit) == ("Evocation")
-          or UnitChannelInfo(unit) == ("Seduction") )
-        and not UnitBuffID(unit, 54748) --Burning Determination
-        and not UnitBuffID(unit, 31821) --Aura Mastery
-        and _LoS(unit)
-        then
-          _castSpell(57994, unit)
+            and UnitChannelInfo(unit) == ("Arcane Missiles") ) then
+            local timeSinceStart = (GetTime() * 1000 - startTime) / 1000
+            local castTime = endTime - startTime	
+            local currentPercent = timeSinceStart / castTime * 100000
+            local KickPercent = random(10, 33)
+            if currentPercent >= KickPercent then
+              if UnitIsFacing ("player", unit) ~= true then
+                FaceDirection (unit, true)
+              end
+              if UnitIsFacing ("player", unit) == true then
+                SpellStopCasting()
+                _castSpell(57994, unit)
+              end
+            end
+          end
         end
       end
     end
 --Shear Heal 
     for _, unit in ipairs(EnemyList) do
-      if ValidUnit(unit, "enemy") then
+      if ValidUnit(unit, "enemy") 
+      and cdRemains(57994) == 0 
+      and _LoS(unit) then
         if not UnitBuffID(unit, 31821) --Aura Mastery
         then
-          local spellName, _, _, _, startCast, endCast, _, _, canInterrupt = UnitCastingInfo(unit) 
+          local name, subText, text, texture, startTime, endTime, isTradeSkill, castID, notInterruptible = UnitCastingInfo(unit) 
           for i=1, #HealList do
-            if GetSpellInfo(HealList[i]) == spellName 
-            and canInterrupt == false then
-              if ((endCast/1000) - GetTime()) < .6 
-              and _LoS(unit) then
-                SpellStopCasting()
-                _castSpell(57994, unit)
+            if GetSpellInfo(HealList[i]) == name 
+            and notInterruptible == false then
+              local timeSinceStart = (GetTime() * 1000 - startTime) / 1000
+              local castTime = endTime - startTime	
+              local currentPercent = timeSinceStart / castTime * 100000
+              local KickPercent = random(25, 75)
+              if currentPercent >= KickPercent then
+                if UnitIsFacing ("player", unit) ~= true then
+                  FaceDirection (unit, true)
+                end
+                if UnitIsFacing ("player", unit) == true then
+                  SpellStopCasting()
+                  _castSpell(57994, unit)
+                end
               end
             end
           end
@@ -397,6 +465,36 @@ if not funcs then funcs = true
     if getHp(lowest) < 80 
     and hasMaelstrom == 5 then 
       _castSpell(49273, lowest)
+    end
+
+--press ~ to cast tremor totem
+if GetKeyState(0xC0) == true
+and GetKeyState(0x10) ~= true then --tilde ~
+  local X,Y,Z = ObjectPosition("focus")
+  _castSpell(8143)
+end
+
+--press ~+shift to cast call of the elements
+if GetKeyState(0xC0) == true 
+and GetKeyState(0x10) == true then
+  for _, unit in ipairs(EnemyList) do
+    if UnitClass(unit) == "Death Knight"
+    or UnitClass(unit) == "Warlock"
+    or UnitClass(unit) == "Hunter"
+    or UnitClass(unit) == "Rogue"
+    or ( UnitClass(unit) == "Druid" and UnitBuffID(unit, 24932) ) --leader of the pack
+    then
+      _castSpell(66843)
+    else
+      _castSpell(66842)
+    end
+  end
+end
+
+--If wind sheer on cd and not facing target then face target
+    if cdRemains(57994) ~= 0 
+    and UnitIsFacing ("player", "target") ~= true then
+      FaceDirection ("target", true)
     end
 --Frost Shock 15yds <=
     if ValidUnit("target", "enemy")

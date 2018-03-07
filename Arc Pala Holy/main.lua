@@ -273,11 +273,15 @@ if not funcs then funcs = true
       UseItemByName("Bauble of True Blood", lowest)
     end
 
---Turn Evil Undead Target
-    if UnitIsEnemy("player", "target")
-    and UnitIsDead("target") == nil
-    and UnitCreatureType("target") == "Undead" then 
-      _castSpell(10326, "target")
+--Turn Evil Gargoyle
+    for i = 1, ObjectCount() do
+      local object = ObjectWithIndex(i)
+      if string.find(select(1, ObjectName(object)), "Ebon Gargoyle") ~= nil  
+      and UnitIsEnemy(object, "player") 
+      and not UnitDebuffID(object, 10326)
+      and UnitCanAttack("player", object) == 1 then
+        _castSpell(10326, object)
+      end
     end
 
 --Hammer of Wrath
