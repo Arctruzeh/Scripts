@@ -8,11 +8,17 @@ if not funcs then funcs = true
 
   EnemyList = { "arena1", "arena2", "arena3", "arenapet1", "arenapet2", "arenapet3" }
 
+  MDList = {
+    10278, --hand of protection
+    642, --bubble
+    45438, --ice block
+  }
+
   HardCCList = {
     10308, --HoJ
     20066, --repentance
     44572, --Deep Freeze
-    30283, --Shadowfury
+    47847, --Shadowfury
     12826, --Polymorph
     42950, --dragons breath
     6215, --Fear
@@ -142,11 +148,19 @@ if not funcs then funcs = true
   function ValidUnit(unit, unitType) 
     return UnitExists(unit)==1 and ValidUnitType(unitType, unit)
   end
-  
+
   ------------------
   --ROTATION START--
   ------------------
   function Rotation()
+    
+--[[mc .suicide
+if UnitExists("target") 
+and UnitDebuffID("target", 605)
+and UnitBuffID("player", 605) then
+  RunMacroText(".suicide")
+end]]
+
 --SWD Hunter
     if not SWDFrame then
       SWDFrame = CreateFrame("Frame", nil, UIParent)
@@ -178,7 +192,7 @@ if not funcs then funcs = true
         end
       end
     end
-    
+
 --SWD Cast
     for _, unit in ipairs(EnemyList) do
       if ValidUnit(unit, "enemy") then
@@ -235,41 +249,79 @@ if not funcs then funcs = true
       end
     end
 
---Dispel Root Player
+    --[[Shackle Gargoyle
+    for i = 1, ObjectCount() do
+      local object = ObjectWithIndex(i)
+      if string.find(select(1, ObjectName(object)), "Ebon Gargoyle") ~= nil  
+      and UnitIsEnemy(object, "player") 
+      and not UnitDebuffID(object, 10955)
+      and UnitCanAttack("player", object) == 1 then
+        _castSpell(10955, object)
+      end
+    end
+]]
+--[[Shackle dk lichbornearena123
+    for _, unit in ipairs(EnemyList) do
+      if UnitExists(unit) == 1 
+      and getHp("player") > 10 then
+        if UnitBuffID(unit, 49039) 
+        and not UnitDebuffId(unit, 10955) then
+          _castSpell(10955, unit)
+        end
+      end
+    end
+    ]]
+--MD
     for _, unit in ipairs(PartyList) do
-      if UnitExists("player") == 1 
-      and getHp(unit) > 90 then
-          for i=1, #RootList do
-            if UnitDebuffID("player", RootList[i]) then
-              _castSpell(988, "player")
+      if UnitExists(unit) == 1
+      and getHp("player") > 60 then
+        for i=1, #MDList do
+          local X,Y,Z = ObjectPosition(unit)
+          if UnitBuffID(unit, MDList[i]) 
+          and UnitBuffID(unit, 33206) == nil then
+            _castSpell(32375)
+            if SpellIsTargeting() then
+              ClickPosition(X, Y, Z)
             end
           end
         end
       end
+    end
+--Dispel Root Player
+    for _, unit in ipairs(PartyList) do
+      if UnitExists("player") == 1 
+      and getHp(unit) > 90 then
+        for i=1, #RootList do
+          if UnitDebuffID("player", RootList[i]) then
+            _castSpell(988, "player")
+          end
+        end
+      end
+    end
 
 --Dispel Root P1
     for _, unit in ipairs(PartyList) do
       if UnitExists("party1") == 1 
       and getHp(unit) > 90 then
-          for i=1, #RootList do
-            if UnitDebuffID("party1", RootList[i]) then
-              _castSpell(988, "party1")
-            end
+        for i=1, #RootList do
+          if UnitDebuffID("party1", RootList[i]) then
+            _castSpell(988, "party1")
           end
         end
       end
+    end
 
 --Dispel Root P2
     for _, unit in ipairs(PartyList) do
       if UnitExists("party2") == 1 
       and getHp(unit) > 90 then
-          for i=1, #RootList do
-            if UnitDebuffID("party2", RootList[i]) then
-              _castSpell(988, "party2")
-            end
+        for i=1, #RootList do
+          if UnitDebuffID("party2", RootList[i]) then
+            _castSpell(988, "party2")
           end
         end
       end
+    end
 
 --Abolish Disease
     --dk
@@ -360,7 +412,7 @@ if not funcs then funcs = true
       end    
     end
   )
-  
+
   -- Enable the rotation
   function Disable()
     enabled = false print("Disabled")
@@ -374,9 +426,9 @@ if not funcs then funcs = true
   function Toggle()
     if enabled then Disable() else Enable() end 
   end
-  
+
   print("Arc Disc")
-  
+
 end
 
 -- Script

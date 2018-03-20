@@ -12,7 +12,7 @@ if not funcs then funcs = true
     10308, --HoJ
     20066, --repentance
     44572, --Deep Freeze
-    30283, --Shadowfury
+    47847, --Shadowfury
     12826, --Sheep
     28271, --Turtle
     61721, --Rabbit

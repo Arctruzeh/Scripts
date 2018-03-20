@@ -164,7 +164,7 @@ if not funcs then funcs = true
 --HoF Stun Player
     if UnitDebuffID("player", 10308) --HoJ
     or UnitDebuffID("player", 44572) --Deep Freeze
-    or UnitDebuffID("player", 30283) --Shadowfury
+    or UnitDebuffID("player", 47847) --Shadowfury
     or UnitDebuffID("player", 8643) --kidney
     then _castSpell(1044,"player")
     end
@@ -186,7 +186,7 @@ if not funcs then funcs = true
 --Repentance target
     if UnitDebuffID("target", 10308) == nil --hoj
     and UnitDebuffID("target", 44572) == nil --deep freeze
-    and UnitDebuffID("target", 30283) == nil --shadowfury
+    and UnitDebuffID("target", 47847) == nil --shadowfury
     and UnitDebuffID("target", 15487) == nil --silence
     and UnitDebuffID("target", 12826) == nil --polymorph
     and UnitDebuffID("target", 47476) == nil --strangulate
@@ -217,7 +217,7 @@ if not funcs then funcs = true
 --HoJ target
     if UnitDebuffID("target", 20066) == nil --repentance
     and UnitDebuffID("target", 44572) == nil --deep freeze
-    and UnitDebuffID("target", 30283) == nil --shadowfury
+    and UnitDebuffID("target", 47847) == nil --shadowfury
     and UnitDebuffID("target", 15487) == nil --silence
     and UnitDebuffID("target", 12826) == nil --polymorph
     and UnitDebuffID("target", 47476) == nil --strangulate

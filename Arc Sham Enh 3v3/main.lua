@@ -46,10 +46,8 @@ if not funcs then funcs = true
   }
 
   PurgeList = {
-    48066, --power word: shield
     32182, --heroism
     2825, --bloodlust
-    43309, --ice barrier
     12472, --icy veins
     12042, --arcane power
     12043, --presence of mind
@@ -63,7 +61,6 @@ if not funcs then funcs = true
     10060, --power infusion
     29166, --innervate
     54833, --innervate glyph
-    10278, --hand of protection
     498, --divine protection
     1044, --hand of freedom
     64701, --elemental mastery
@@ -71,16 +68,21 @@ if not funcs then funcs = true
     6346, --fear ward
     48161, --Power Word: Fortitude
     20217, --Blessing of Kings
+    25898, --Greater Kings
     48469, --Mark of the Wild
     48932, --Blessing of Might
-    48111, --Prayer of Mending
+    48934, --Great Might
+    48441, --Rejuv
+    48451, --Lifebloom
   }
+
 
   Purgeb4dmgList = {
     48066, --power word: shield
     43309, --ice barrier
     498, --divine protection
     48111, --Prayer of Mending
+    47986, --lock void shield
   }
 
   EBindList = {

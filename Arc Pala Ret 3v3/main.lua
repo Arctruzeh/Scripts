@@ -18,7 +18,7 @@ if not funcs then funcs = true
     10308, --HoJ
     20066, --repentance
     44572, --Deep Freeze
-    30283, --Shadowfury
+    47847, --Shadowfury
     12826, --Sheep
     28271, --Turtle
     61721, --Rabbit
@@ -215,7 +215,7 @@ if not funcs then funcs = true
 --HoF Stun Player
     if UnitDebuffID("player", 10308) --HoJ
     or UnitDebuffID("player", 44572) --Deep Freeze
-    or UnitDebuffID("player", 30283) --Shadowfury
+    or UnitDebuffID("player", 47847) --Shadowfury
     or UnitDebuffID("player", 8643) --kidney
     then _castSpell(1044,"player")
       return true
@@ -296,7 +296,16 @@ if not funcs then funcs = true
         _castSpell(10278,"party2")
       end
     end
-
+--Turn Evil Gargoyle
+for i = 1, ObjectCount() do
+  local object = ObjectWithIndex(i)
+  if string.find(select(1, ObjectName(object)), "Ebon Gargoyle") ~= nil  
+  and UnitIsEnemy(object, "player") 
+  and not UnitDebuffID(object, 10326)
+  and UnitCanAttack("player", object) == 1 then
+    _castSpell(10326, object)
+  end
+end
 --Turn Evil Undead Target
     if UnitExists("target") == 1
     and UnitIsEnemy("player", "target")
@@ -394,7 +403,7 @@ if not funcs then funcs = true
 --Repentance Focus
     if UnitDebuffID("focus", 10308) == nil --hoj
     and UnitDebuffID("focus", 44572) == nil --deep freeze
-    and UnitDebuffID("focus", 30283) == nil --shadowfury
+    and UnitDebuffID("focus", 47847) == nil --shadowfury
     and UnitDebuffID("focus", 15487) == nil --silence
     and UnitDebuffID("focus", 12826) == nil --polymorph
     and UnitDebuffID("focus", 47476) == nil --strangulate
@@ -426,7 +435,7 @@ if not funcs then funcs = true
 --HoJ Focus
     if UnitDebuffID("focus", 20066) == nil --repentance
     and UnitDebuffID("focus", 44572) == nil --deep freeze
-    and UnitDebuffID("focus", 30283) == nil --shadowfury
+    and UnitDebuffID("focus", 47847) == nil --shadowfury
     and UnitDebuffID("focus", 15487) == nil --silence
     and UnitDebuffID("focus", 12826) == nil --polymorph
     and UnitDebuffID("focus", 47476) == nil --strangulate

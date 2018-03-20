@@ -12,7 +12,7 @@ if not funcs then funcs = true
     10308, --HoJ
     20066, --repentance
     44572, --Deep Freeze
-    30283, --Shadowfury
+    47847, --Shadowfury
     12826, --Sheep
     28271, --Turtle
     61721, --Rabbit
@@ -199,7 +199,7 @@ if not funcs then funcs = true
 --HoF Stun Player
     if UnitDebuffID("player", 10308) --HoJ
     or UnitDebuffID("player", 44572) --Deep Freeze
-    or UnitDebuffID("player", 30283) --Shadowfury
+    or UnitDebuffID("player", 47847) --Shadowfury
     or UnitDebuffID("player", 8643) --kidney
     then _castSpell(1044,"player")
       return true
@@ -392,7 +392,7 @@ end
 --Repentance Focus
     if UnitDebuffID("focus", 10308) == nil --hoj
     and UnitDebuffID("focus", 44572) == nil --deep freeze
-    and UnitDebuffID("focus", 30283) == nil --shadowfury
+    and UnitDebuffID("focus", 47847) == nil --shadowfury
     and UnitDebuffID("focus", 15487) == nil --silence
     and UnitDebuffID("focus", 12826) == nil --polymorph
     and UnitDebuffID("focus", 47476) == nil --strangulate
@@ -424,7 +424,7 @@ end
 --HoJ Focus
     if UnitDebuffID("focus", 20066) == nil --repentance
     and UnitDebuffID("focus", 44572) == nil --deep freeze
-    and UnitDebuffID("focus", 30283) == nil --shadowfury
+    and UnitDebuffID("focus", 47847) == nil --shadowfury
     and UnitDebuffID("focus", 15487) == nil --silence
     and UnitDebuffID("focus", 12826) == nil --polymorph
     and UnitDebuffID("focus", 47476) == nil --strangulate

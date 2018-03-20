@@ -147,7 +147,7 @@ if not funcs then funcs = true
 --HoF Stun Player
     if UnitDebuffID("player", 10308) --HoJ
     or UnitDebuffID("player", 44572) --Deep Freeze
-    or UnitDebuffID("player", 30283) --Shadowfury
+    or UnitDebuffID("player", 47847) --Shadowfury
     or UnitDebuffID("player", 8643) --kidney
     then _castSpell(1044,"player")
     end

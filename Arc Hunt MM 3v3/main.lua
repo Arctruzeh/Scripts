@@ -59,6 +59,19 @@ if not funcs then funcs = true
     17928, --Howl of Terror
   }
 
+  IntList = {
+    49803, --pounce
+    8983, --bash
+    1833, --cheap shot
+    8643, --kidney
+    47481, --gnaw
+    7922, --charge
+    20253, --intercept
+    12809, --concussion blow
+    46968, --shockwave
+    19503, --scatter
+  }
+
   function UnitBuffID(unit, id)    
     return UnitBuff(unit, GetSpellInfo(id))
   end
@@ -204,6 +217,16 @@ if not funcs then funcs = true
 
 --Roar of Sacrifice
     if getHp(lowest) < 40 then _castSpell(53480, lowest) end
+--Intervene
+    for _, unit in ipairs(PartyList) do
+      if UnitExists(unit) == 1 then
+        for i=1, #IntList do
+          if UnitDebuffID(unit, IntList[i]) then
+            _castSpell(53476, unit)
+          end
+        end
+      end
+    end
 
 --Silence CC
     for _, unit in ipairs(EnemyList) do
@@ -283,8 +306,17 @@ if not funcs then funcs = true
     and UnitBuffID("focus", 642) == nil --divine shield
     and UnitBuffID("focus", 10278) == nil --HoP
     and UnitBuffID("focus", 8178) == nil --grounding
-    and UnitPower("player")>= 403 then
-      _castSpell(19503, "focus")
+    and cdRemains(19503) == 0
+    and rangeCheck(19503, "focus") == true
+    and _LoS("focus")
+    and UnitPower("player") >= 403 then
+      if UnitIsFacing ("player", "focus") ~= true then
+        FaceDirection ("focus", true)
+      end
+      if UnitIsFacing ("player", "focus") == true then
+        SpellStopCasting()
+        _castSpell(19503, "focus")
+      end
     end
 
 --Scatter Heal
@@ -312,11 +344,19 @@ if not funcs then funcs = true
           local spellName, _, _, _, startCast, endCast, _, _, canInterrupt = UnitCastingInfo(unit) 
           for i=1, #HealList do
             if GetSpellInfo(HealList[i]) == spellName 
-            and cdRemains(19503) > 2
+            and cdRemains(34490) == 0
+            and rangeCheck(34490, unit) == true
+            and _LoS(unit)
+            and ( cdRemains(19503) > 2 or rangeCheck(19503, unit) ~= true )
             and canInterrupt == false then
               if ((endCast/1000) - GetTime()) < .5 then
-                SpellStopCasting()
-                _castSpell(34490, unit)
+                if UnitIsFacing ("player", unit) ~= true then
+                  FaceDirection (unit, true)
+                end
+                if UnitIsFacing ("player", unit) == true then
+                  SpellStopCasting()
+                  _castSpell(34490, unit)
+                end
               end
             end
           end
